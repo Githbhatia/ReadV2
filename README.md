@@ -9,6 +9,6 @@ Code shows location of seismic instrument that originated the record on a map. P
 
 Save time vs. acceleration in a text format.
 
-Example input v2 file from the Ferndale earthquake is included.
+Example input v2 file from the Ferndale earthquake is included.  See png files to see sample outputs.
 
 Needs many Python packages: numpy matplotlib itertools tkintner scipy
