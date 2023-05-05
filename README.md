@@ -12,3 +12,8 @@ Save time vs. acceleration in a text format.
 Example input v2 file from the Ferndale earthquake is included.  See png files to see sample outputs.
 
 Needs many Python packages: numpy matplotlib itertools tkintner scipy
+
+
+Changes 5/3/2023
+  Added option to plot Arias Intensity
+  Changed ASCE7-22 url per changes by USGS
