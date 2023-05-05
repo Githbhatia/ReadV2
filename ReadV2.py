@@ -132,7 +132,7 @@ def on_click():
 
     else: 
         pb.start()
-        pb.configure(maximum=1.05+ canvas.createRS.get()+ canvas.plotVel.get() + canvas.plotDisp.get() + canvas.createRS2.get() )
+        pb.configure(maximum=1.05+ canvas.createRS.get()+ canvas.plotVel.get() + canvas.plotDisp.get() + canvas.createRS2.get() +canvas.arias.get())
         win.update_idletasks()
         tT = np.concatenate( (np.arange(0.05, 0.1, 0.005) , np.arange (0.1, 0.5, 0.01) , np.arange (0.5, 1, 0.02) , np.arange (1, float(canvas.entry_endPeriod.get()), 0.05) ) ) # Time vector for the spectral response
         freq = 1/tT # Frequenxy vector
@@ -140,7 +140,7 @@ def on_click():
         df = 1.0/dtAccel1
         Sfin=[]
     
-        noSubplotsRows = 1 + canvas.createRS.get()+ canvas.plotVel.get() + canvas.plotDisp.get() + canvas.createRS2.get();noSubplotsCols = 3;subplotCounter = 1
+        noSubplotsRows = 1 + canvas.createRS.get()+ canvas.plotVel.get() + canvas.plotDisp.get() + canvas.createRS2.get() +canvas.arias.get();noSubplotsCols = 3;subplotCounter = 1
         yaxislimit = round(accelim(scaledAccel1, scaledAccel2, scaledAccel3)*1.1,2)
         nyaxislimit = 0.0 - yaxislimit
         plt.figure(figsize=(18,8 + 2*noSubplotsRows))
@@ -185,6 +185,7 @@ def on_click():
             win.update_idletasks()
             subplotCounter+=1
             ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.grid()
             Sfin= RS_function(accel1, df, tT, xi, Resp_type = 'SA')
             S=Sfin[0,:]*scaleValue(unitsAccel1)
             plt.xlabel('Period (secs)')
@@ -196,6 +197,7 @@ def on_click():
 
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.grid()
             Sfin= RS_function(accel2, df, tT, xi, Resp_type = 'SA')
             S=Sfin[0,:]*scaleValue(unitsAccel2)
             plt.xlabel('Period (secs)')
@@ -207,6 +209,7 @@ def on_click():
 
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.grid()
             Sfin= RS_function(accel3, df, tT, xi, Resp_type = 'SA')
             S=Sfin[0,:]*scaleValue(unitsAccel3)
             plt.xlabel('Period (secs)')
@@ -280,6 +283,39 @@ def on_click():
             ax.text(x_right/3, y_high/3, str(area) + r"$(m/s)^2$", horizontalalignment='center', fontsize=10, color ='Blue')
             ax.text(0.97, 0.97, 'Damping=' + str(round(xi,3)), horizontalalignment='right', verticalalignment='top', fontsize=6, color ='Black',transform=ax.transAxes)
 
+        if str(canvas.arias.get()) =="1":
+            arias1 = np.cumsum(np.square(accel1)*dtAccel1*np.pi/2/980.665/100)
+            arias2 = np.cumsum(np.square(accel2)*dtAccel2*np.pi/2/980.665/100)
+            arias3 = np.cumsum(np.square(accel3)*dtAccel3*np.pi/2/980.665/100)
+            ariasmax= max(np.max(arias1), np.max(arias2), np.max(arias3))
+
+            subplotCounter+=1
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.grid()
+            plt.xlabel('Time (secs)')
+            plt.ylabel('Arias Intensity (m/s)')
+            plt.plot(T1,arias1, label="Channel1", color= 'Red', linewidth=1.0)
+            plt.ylim([0, ariasmax])
+            plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+
+            subplotCounter+=1
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.grid()
+            plt.xlabel('Time (secs)')
+            plt.ylabel('Arias Intensity (m/s)')
+            plt.plot(T1,arias2, label="Channel1", color= 'Red', linewidth=1.0)
+            plt.ylim([0, ariasmax])
+            plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+
+            subplotCounter+=1
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.grid()
+            plt.xlabel('Time (secs)')
+            plt.ylabel('Arias Intensity (m/s)')
+            plt.plot(T1,arias3, label="Channel1", color= 'Red', linewidth=1.0)
+            plt.ylim([0, ariasmax])
+            plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+    
         if str(canvas.plotVel.get()) =="1":
             pb.step(1)
             win.update_idletasks()
@@ -340,7 +376,7 @@ def on_click():
             plt.plot(T1,displ3, label="Channel3", color= 'Green', linewidth=1.0)
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
-    
+
        
 
     if EOF == 0 and str(canvas.plotOrbit.get()) =="1":    
@@ -1014,7 +1050,7 @@ def ASCE722Spectra():
     longt= str(canvas.entry_Long.get())
     riskct = str(canvas.SelectedRiskCategory.get())
     sitecl = str(canvas.SelectedSiteClass.get())
-    url = 'https://earthquake.usgs.gov/ws/designmaps/nehrp-2020.json?latitude='+ lat + '&longitude=' + longt\
+    url = 'https://earthquake.usgs.gov/ws/designmaps/asce7-22.json?latitude='+ lat + '&longitude=' + longt\
  +'&riskCategory='+ riskct +'&siteClass=' + sitecl + '&title=Example'
     #print(url)
     try:
@@ -1247,7 +1283,7 @@ rr=0
 if EOF==1:
     win.geometry("480x430")
 else:
-    win.geometry("480x975")
+    win.geometry("480x1000")
 win.title("Read Cosmos V2 Files")
 
 win.menubar = Menu()
@@ -1255,8 +1291,10 @@ win.menubar.add_command(label="Quit", command=lambda:onclick2())
 win.menubar.add_command(label="About", command=lambda:myabout())  
 win.config(menu = win.menubar) 
 
+container = ttk.Frame(win)
+container.pack()
+canvas = Canvas(container)
 
-canvas = Canvas(win)
 canvas.grid(row=0,column=0,sticky='news')
 canvas.grid_columnconfigure(1, minsize=100)
 pb = ttk.Progressbar(canvas,orient='horizontal', mode='determinate', length=400)
@@ -1286,7 +1324,7 @@ canvas.entry_Highxlim.insert(0,str(endlimAccel()))
 
 ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
 canvas.SaveCh1 = IntVar(); canvas.SaveCh2 = IntVar(); canvas.SaveCh3 = IntVar(); canvas.createRS =IntVar(); canvas.createRS2 =IntVar();canvas.plotVel = IntVar();canvas.plotDisp = IntVar();canvas.plotOrbit = IntVar();canvas.plotFFT = IntVar()
-canvas.includeASCE = IntVar();canvas.createTrip=IntVar();canvas.createAz3D=IntVar()
+canvas.includeASCE = IntVar();canvas.createTrip=IntVar();canvas.createAz3D=IntVar(); canvas.arias=IntVar()
 if EOF==1:
     ttk.Checkbutton(canvas, text="Plot Velocity?", variable=canvas.plotVel).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Displacement?", variable=canvas.plotDisp).grid(row=rr,column=0, sticky="w"); rr+=1
@@ -1337,11 +1375,13 @@ else:
 
     ttk.Checkbutton(canvas, text="Create Response Spectra?", variable=canvas.createRS2).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Create PSA vs Disp Spectra?", variable=canvas.createRS).grid(row=rr,column=0, sticky="w"); rr+=1
-    ttk.Checkbutton(canvas, text="Include ASCE722 Spectra? (Only for Rotated Plots)", variable=canvas.includeASCE).grid(row=rr,column=0, sticky="w"); rr+=1
-    ttk.Checkbutton(canvas, text="Create Tripartite Response Spectra (only for Rotated Plots)?", variable=canvas.createTrip).grid(row=rr,column=0, sticky="w"); rr+=1
+    ttk.Checkbutton(canvas, text="Plot Arias Intensity?", variable=canvas.arias).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Velocity?", variable=canvas.plotVel).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Displacement?", variable=canvas.plotDisp).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="3D Orbit Plot?", variable=canvas.plotOrbit).grid(row=rr,column=0, sticky="w"); rr+=1
+
+    ttk.Checkbutton(canvas, text="Include ASCE722 Spectra? (Only for Rotated Plots)", variable=canvas.includeASCE).grid(row=rr,column=0, sticky="w"); rr+=1
+    ttk.Checkbutton(canvas, text="Create Tripartite Response Spectra (only for Rotated Plots)?", variable=canvas.createTrip).grid(row=rr,column=0, sticky="w"); rr+=1
 
     ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
     pb.grid(row=rr,column=0,pady=3,columnspan = 2); rr+=1
@@ -1370,5 +1410,6 @@ else:
 
 ttk.Button(canvas, text="Save File", command=saveFile).grid(row=rr,column=0,columnspan = 1)
 ttk.Button(canvas, text="Quit", style = 'W.TButton', command=lambda:onclick2()).grid(row=rr,column=1,columnspan = 1); rr+=1
+
 
 win.mainloop()
