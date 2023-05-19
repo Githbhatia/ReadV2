@@ -596,6 +596,85 @@ def rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplo
     pb.stop()
     plt.show()
 
+def on_clickRotAngle():
+    #%% Parameters of the response spectra
+    
+
+    horRec=np.zeros((2,len(scaledAccel1)))
+
+    if "Up" in nameCh1 or "HNZ" in nameCh1:
+        if "360" in nameCh2 or "180" in nameCh2:
+            horRec[0,:] = scaledAccel3
+            horRec[1,:] = scaledAccel2
+            horRec1=nameCh3;horRec2=nameCh2
+        else:
+            horRec[0,:] = scaledAccel2
+            horRec[1,:] = scaledAccel3
+            horRec1=nameCh2;horRec2=nameCh3
+
+    elif "Up" in nameCh2 or "HNZ" in nameCh2:
+        if "360" in nameCh1 or "180" in nameCh1:
+            horRec[0,:] = scaledAccel3
+            horRec[1,:] = scaledAccel1
+            horRec1=nameCh3;horRec2=nameCh1
+        else:
+            horRec[0,:] = scaledAccel1
+            horRec[1,:] = scaledAccel3
+            horRec1=nameCh1;horRec2=nameCh3
+
+    elif "Up" in nameCh3 or "HNZ" in nameCh3:
+        if "360" in nameCh1 or "180" in nameCh1:
+            horRec[0,:] = scaledAccel2
+            horRec[1,:] = scaledAccel1
+            horRec1=nameCh2;horRec2=nameCh1
+        else:
+            horRec[0,:] = scaledAccel1
+            horRec[1,:] = scaledAccel2
+            horRec1=nameCh1;horRec2=nameCh2
+    
+    if "360" in horRec2:
+        horRec2 = horRec2.replace("360 Deg", "NS")
+    elif "180" in horRec2:
+        horRec[1,:]=[x*-1 for x in horRec[1,:]]
+        horRec2 = horRec2.replace("180 Deg", "NS")
+    
+    if "90" in horRec1:
+        horRec1 = horRec1.replace("90 Deg", "EW")
+    elif "270" in horRec1:
+        horRec[0,:]=[x*-1 for x in horRec[0,:]]
+        horRec1 = horRec1.replace("270 Deg", "EW")
+
+    plt.close(7)
+    pb.start()
+    pb.configure(maximum=1.05+(canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get()) )
+    win.update_idletasks()
+    plt.figure(7,figsize=(14,15))
+    noSubplotsRows = 1 + math.ceil((canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get())/2);noSubplotsCols = 2;subplotCounter = 1
+    ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+    plt.title("Orbit plot for acceleration")
+    plt.plot(horRec[0,:], horRec[1,:])
+    
+    #resAccelmax = np.sqrt(np.square(horRec[0,rotmaxLoc])+np.square(horRec[1,rotmaxLoc]))
+    resAngle = float(canvas.entry_Angle.get())/180.0 * np.pi
+    resAccelmax = (horRec[0,:]*np.cos(resAngle)+horRec[1,:]*np.sin(resAngle))
+    rotmax = np.max(resAccelmax)
+    #print(resAccelmax, horRec[0,rotmaxLoc]*np.cos(resAngle)+horRec[1,rotmaxLoc]*np.sin(resAngle) )
+    plt.plot([0,rotmax*np.cos(resAngle)], [0, rotmax*np.sin(resAngle)], color='red',linewidth=2.0 )
+    #plt.annotate(round(resAccelmax,3), xy=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), xytext=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), fontsize=10, color= 'Blue')
+    plt.xlabel(horRec1); plt.ylabel(horRec2)
+    maxLimit = max(np.max(horRec), np.abs(np.min(horRec)))/0.95
+    plt.xlim(-maxLimit, maxLimit)
+    plt.ylim(-maxLimit, maxLimit)
+    x_left, x_right = ax.get_xlim()
+    y_low, y_high = ax.get_ylim()
+    ax.set_aspect(abs((x_right-x_left)/(y_low-y_high)))
+
+    
+    
+    rotType="Resultant Acceleration in direction of specified angle"
+    rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplotCounter,rotType)
+
+
 def on_clickRotD50():
     #%% Parameters of the response spectra
 
@@ -1283,7 +1362,7 @@ rr=0
 if EOF==1:
     win.geometry("480x430")
 else:
-    win.geometry("480x1000")
+    win.geometry("480x1050")
 win.title("Read Cosmos V2 Files")
 
 win.menubar = Menu()
@@ -1392,9 +1471,17 @@ else:
     ttk.Button(canvas, text="Plot Rotated Max Resp", command=on_clickRotDisp).grid(row=rr,column=1,padx=7,columnspan = 1); rr+=1
     ttk.Button(canvas, text="Plot Rotated Max Velocity", command=on_clickRotVel).grid(row=rr,column=0,padx=7,columnspan = 1)
     ttk.Button(canvas, text="Plot Rotated Max Accel", command=on_clickRot).grid(row=rr,column=1,padx=7,columnspan = 1); rr+=1
+    canvas.LabelAngle = Label(canvas, text="Rotate by Angle = ", justify="right").grid(row=rr,column=0,sticky="e")
+    canvas.entry_Angle  = Entry(canvas); 
+    canvas.entry_Angle.insert(0,str("45"))
+    canvas.entry_Angle.grid(row=rr,column=1,pady =7, sticky="ew"); rr+=1
+    ttk.Button(canvas, text="Plot Rotated Angle", command=on_clickRotAngle).grid(row=rr,column=1,padx=7,columnspan = 1); rr+=1
     ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Azimuth angle vs Spectra, 3D plot?", variable=canvas.createAz3D).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Button(canvas, text="Plot RotD50 Spectra", command=on_clickRotD50).grid(row=rr,column=0,pady=3,columnspan = 2); rr+=1
+
+
+
 
 ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
 
