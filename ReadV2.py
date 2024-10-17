@@ -17,7 +17,7 @@ def openMap():
 
 def openStation():
     station = os.path.basename(filenames[0])
-    station = station[:station.find("\.v2")-2].strip()
+    station = station[:station.find(".v2")].strip()
     if station[:2] == "ce" or station[:2] == "CE" :
         webbrowser.open('https://www.strongmotioncenter.org/cgi-bin/CESMD/stationhtml.pl?stationID='+station+'&network=CGS')
     else:
@@ -74,6 +74,8 @@ def accelim(x,y,z):
     ymax = max([abs(i) for i in y])
     zmax = max([abs(i) for i in z])
     return max([xmax,ymax,zmax])
+
+
 
 def on_click():
     #%% Parameters of the response spectra
@@ -227,7 +229,7 @@ def on_click():
             ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             Sfin= RS_function(accel1, df, tT, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel1)
-            area= round(np.trapz(Sfin[0,:],Sfin[1,:])/10000,2)
+            area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
             plt.xlabel('Peak D (cm)')
             plt.ylabel('Peak PSA (g)')
@@ -247,7 +249,7 @@ def on_click():
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             Sfin= RS_function(accel2, df, tT, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel2)
-            area= round(np.trapz(Sfin[0,:],Sfin[1,:])/10000,2)
+            area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
             plt.xlabel('Peak D (cm)')
             plt.ylabel('Peak PSA (g)')
@@ -267,7 +269,7 @@ def on_click():
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             Sfin= RS_function(accel3, df, tT, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel3)
-            area= round(np.trapz(Sfin[0,:],Sfin[1,:])/10000,2)
+            area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
             plt.xlabel('Peak D (cm)')
             plt.ylabel('Peak PSA (g)')
@@ -287,34 +289,46 @@ def on_click():
             arias1 = np.cumsum(np.square(accel1)*dtAccel1*np.pi/2/980.665/100)
             arias2 = np.cumsum(np.square(accel2)*dtAccel2*np.pi/2/980.665/100)
             arias3 = np.cumsum(np.square(accel3)*dtAccel3*np.pi/2/980.665/100)
+            normarias1 = arias1/np.max(arias1)
+            normarias2 = arias2/np.max(arias2)
+            normarias3 = arias3/np.max(arias3)
+            
+
+
             ariasmax= max(np.max(arias1), np.max(arias2), np.max(arias3))
 
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Arias Intensity (m/s)')
             plt.plot(T1,arias1, label="Channel1", color= 'Red', linewidth=1.0)
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias1 > 0.75)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.92, 'D5-95 = ' + str(round(T1[np.argmax(normarias1 > 0.95)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
 
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Arias Intensity (m/s)')
             plt.plot(T1,arias2, label="Channel1", color= 'Red', linewidth=1.0)
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias2 > 0.75)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.92, 'D5-95 = ' + str(round(T1[np.argmax(normarias2 > 0.95)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
 
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Arias Intensity (m/s)')
             plt.plot(T1,arias3, label="Channel1", color= 'Red', linewidth=1.0)
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias3 > 0.75)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.92, 'D5-95 = ' + str(round(T1[np.argmax(normarias3 > 0.95)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
     
         if str(canvas.plotVel.get()) =="1":
             pb.step(1)
@@ -534,7 +548,7 @@ def rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplo
         ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
         Sfin= RS_function(resAccelmax, df, tT, xi, Resp_type = 'PSASD')
         S=Sfin[0,:]*scaleValue(unitsAccel1)
-        area= round(np.trapz(Sfin[0,:],Sfin[1,:])/10000,2)
+        area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
         #print(area)
         plt.xlabel('Peak D (cm)')
         plt.ylabel('Peak PSA (g)')
@@ -1210,7 +1224,7 @@ def readFile():
 
     messagebox.showinfo('ReadV2', 'Select COSMOS V2 file (freefield or single channel record)')
     filetypes = (
-            ('text files', '*.v2'),
+            ('text files', '*.v2'),('text files', '*.V2'),
             ('All files', '*.*')
         )
     filenames = fd.askopenfilenames(
