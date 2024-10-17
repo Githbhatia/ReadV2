@@ -22,4 +22,4 @@ Changes 5/19/2023
  *Added option to rotate to a specified angle
 
  Changes 10/17/2024
- *Added D5-75 and D5-95 calculations reported on the Arias Intensity plots.
+ *Added D5-75 and D5-95 calculations reported on the Arias Intensity plots - easily changed to any interval.
