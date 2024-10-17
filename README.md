@@ -1,6 +1,6 @@
 # ReadV2
 
-Read and plot COSMOS formate v2 seismic ground motion records such as posted on CESMD website (Center of Strong Motion Data https://www.strongmotioncenter.org/). The code can also be used to view building instrument records on the CESMD site and those also available at the HCAI website (https://hcai.ca.gov/construction-finance/facility-detail/ - navigate to a hospital that has instrumented buildings and look under the Instrumented Buildings Tab). Python code reads a .v2 file that contains one or three channels (Free-Field instruments have 3 channels, Instrumented Buildings have records for individual channels. 
+Read and plot COSMOS formate v2 seismic ground motion records such as posted on CESMD website (Center of Strong Motion Data https://www.strongmotioncenter.org/). The code can also be used to view building instrument records on the CESMD site and those also available at the HCAI website (https://hcai.ca.gov/construction-finance/facility-detail/ - navigate to a hospital that has instrumented buildings and look under the Instrumented Buildings Tab). Python code reads a .v2 file that contains one or three channels (Free-Field instruments have 3 channels, Instrumented Buildings have records for individual channels.)
 
 User interface uses tkinter.
 
@@ -20,3 +20,6 @@ Changes 5/3/2023
   
 Changes 5/19/2023
  *Added option to rotate to a specified angle
+
+ Changes 10/17/2024
+ *Added D5-75 and D5-95 calculations reported on the Arias Intensity plots.
