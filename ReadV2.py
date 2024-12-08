@@ -147,7 +147,7 @@ def on_click():
         nyaxislimit = 0.0 - yaxislimit
         plt.figure(figsize=(18,8 + 2*noSubplotsRows))
 
-        plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+        ax1=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
         plt.grid()
         plt.title(nameCh1)
         plt.xlabel('Time (secs)')
@@ -159,7 +159,7 @@ def on_click():
         plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
         subplotCounter+=1
-        plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+        plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter,sharex=ax1,sharey=ax1)
         plt.grid()
         plt.title(nameCh2)
         plt.xlabel('Time (secs)')
@@ -171,7 +171,7 @@ def on_click():
         plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
         subplotCounter+=1
-        plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+        plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter,sharex=ax1,sharey=ax1)
         plt.grid()
         plt.title(nameCh3)
         plt.xlabel('Time (secs)')
@@ -186,38 +186,60 @@ def on_click():
             pb.step(1)
             win.update_idletasks()
             subplotCounter+=1
+            if str(canvas.RspSpecType .get()) =="Disp":
+                rT='SD'
+                rL= 'SD (cm)'
+                rU = 'cm'
+            elif str(canvas.RspSpecType .get()) =="Vel":
+                rT ='SV'
+                rL= 'SV (cm/sec)'
+                rU = 'cm/sec'
+            else:
+                rT ='SA'
+                rL ='SA (g)'
+                rU ='g'
+
             ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
-            Sfin= RS_function(accel1, df, tT, xi, Resp_type = 'SA')
-            S=Sfin[0,:]*scaleValue(unitsAccel1)
+            Sfin= RS_function(accel1, df, tT, xi, Resp_type = rT)
+            if str(canvas.RspSpecType .get()) =="Accel":
+                S=Sfin[0,:]*scaleValue(unitsAccel1)
+            else:
+                S=Sfin[0,:]
             plt.xlabel('Period (secs)')
-            plt.ylabel('SA (g)')
+            plt.ylabel(rL)
             ax.plot(tT,S,color= 'Red', linewidth=1.0)
-            amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) +"g" , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
+            amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) + rU , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
             ax.text(0.97, 0.97, 'Damping=' + str(round(xi,3)), horizontalalignment='right', verticalalignment='top', fontsize=6, color ='Black',transform=ax.transAxes)
             
 
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
-            Sfin= RS_function(accel2, df, tT, xi, Resp_type = 'SA')
-            S=Sfin[0,:]*scaleValue(unitsAccel2)
+            Sfin= RS_function(accel2, df, tT, xi, Resp_type = rT)
+            if str(canvas.RspSpecType .get()) =="Accel":
+                S=Sfin[0,:]*scaleValue(unitsAccel2)
+            else:
+                S=Sfin[0,:]
             plt.xlabel('Period (secs)')
-            plt.ylabel('SA (g)')
+            plt.ylabel(rL)
             ax.plot(tT,S,color= 'Red', linewidth=1.0)
-            amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) +"g" , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
+            amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) +rU , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
             ax.text(0.97, 0.97, 'Damping=' + str(round(xi,3)), horizontalalignment='right', verticalalignment='top', fontsize=6, color ='Black',transform=ax.transAxes)
             
 
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
-            Sfin= RS_function(accel3, df, tT, xi, Resp_type = 'SA')
-            S=Sfin[0,:]*scaleValue(unitsAccel3)
+            Sfin= RS_function(accel3, df, tT, xi, Resp_type = rT)
+            if str(canvas.RspSpecType .get()) =="Accel":
+                S=Sfin[0,:]*scaleValue(unitsAccel3)
+            else:
+                S=Sfin[0,:]
             plt.xlabel('Period (secs)')
-            plt.ylabel('SA (g)')
+            plt.ylabel(rL)
             ax.plot(tT,S,color= 'Red', linewidth=1.0)
-            amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) +"g" , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
+            amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) +rU , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
             ax.text(0.97, 0.97, 'Damping=' + str(round(xi,3)), horizontalalignment='right', verticalalignment='top', fontsize=6, color ='Black',transform=ax.transAxes)
             
         
@@ -416,6 +438,24 @@ def on_click():
                 ax.set_ylabel(nameCh2 + " displacement", fontsize=6)
                 ax.set_zlabel(nameCh3 + " displacement", fontsize=6)
                 ax.plot(displ1[locanvasdex1:highIndex1],displ2[locanvasdex2:highIndex2],displ3[locanvasdex3:highIndex3], label="Orbitplot", color= 'Black', linewidth=0.5)
+
+
+        x_limits = ax.get_xlim3d()
+        y_limits = ax.get_ylim3d()
+        z_limits = ax.get_zlim3d()
+
+        x_range = abs(x_limits[1] - x_limits[0])
+        x_middle = np.mean(x_limits)
+        y_range = abs(y_limits[1] - y_limits[0])
+        y_middle = np.mean(y_limits)
+        z_range = abs(z_limits[1] - z_limits[0])
+        z_middle = np.mean(z_limits)
+        plot_radius = 0.5*max([x_range, y_range, z_range])
+
+        ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+        ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+        ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
     pb.stop()
     plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)    
     plt.show()
@@ -1376,7 +1416,7 @@ rr=0
 if EOF==1:
     win.geometry("480x430")
 else:
-    win.geometry("480x1050")
+    win.geometry("480x1100")
 win.title("Read Cosmos V2 Files")
 
 win.menubar = Menu()
@@ -1467,6 +1507,14 @@ else:
 
 
     ttk.Checkbutton(canvas, text="Create Response Spectra?", variable=canvas.createRS2).grid(row=rr,column=0, sticky="w"); rr+=1
+
+    RspSpecList=["Accel","Vel","Disp"]
+    canvas.RspSpecType =StringVar()
+    canvas.RspSpecType.set("Accel")
+    canvas.label_RspSpecType = Label(canvas,text="Type").grid(row=rr,column=0,sticky="e")
+    canvas.list_RspSpecType = OptionMenu(canvas,canvas.RspSpecType,*RspSpecList)
+    canvas.list_RspSpecType.grid(row=rr,column=1,sticky="ew"); rr+=1
+
     ttk.Checkbutton(canvas, text="Create PSA vs Disp Spectra?", variable=canvas.createRS).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Arias Intensity?", variable=canvas.arias).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Velocity?", variable=canvas.plotVel).grid(row=rr,column=0, sticky="w"); rr+=1
