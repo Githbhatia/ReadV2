@@ -23,3 +23,6 @@ Changes 5/19/2023
 
  Changes 10/17/2024
  *Added D5-75 and D5-95 calculations reported on the Arias Intensity plots - easily changed to any interval.
+
+ Changes 12/7/2024
+ *Revised the 3D-orbit plot to have equal axis in all three directions.  Added option to create response spectra for velocity and displacement in addition to acceleration as requested by a user.
