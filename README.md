@@ -26,3 +26,6 @@ Changes 5/19/2023
 
  Changes 12/7/2024
  *Revised the 3D-orbit plot to have equal axis in all three directions.  Added option to create response spectra for velocity and displacement in addition to acceleration as requested by a user.
+
+Changes 12/8/2024
+*Revised 3D-orbit plot to have colors based on z displacements (up-down).  Changed the main gui window to be scrollable for users with lower resolution monitors.
