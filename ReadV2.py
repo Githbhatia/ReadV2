@@ -7,10 +7,33 @@ from tkinter import filedialog as fd
 from tkinter import messagebox
 from RS_function import RS_function
 import urllib.request as ur
+import tkinter as tk
 import json as js
 import webbrowser
 import os
 import math
+
+class ScrollableFrame(tk.Frame):
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+
+        # Create a canvas with a vertical scrollbar
+        canvas = tk.Canvas(self)
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+
+        # Configure the canvas
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Pack the components
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        # Bind canvas resize to configure the scrollable region
+        canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        self.scrollable_frame = scrollable_frame
 
 def openMap():
     webbrowser.open('http://www.google.com/maps/place/'+ str(latitude) +','+str(longitude)+'/@'+ str(latitude) +','+str(longitude)+',12z', new=2)
@@ -314,8 +337,6 @@ def on_click():
             normarias1 = arias1/np.max(arias1)
             normarias2 = arias2/np.max(arias2)
             normarias3 = arias3/np.max(arias3)
-            
-
 
             ariasmax= max(np.max(arias1), np.max(arias2), np.max(arias3))
 
@@ -328,7 +349,7 @@ def on_click():
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
             ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias1 > 0.75)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
-            ax.text(0.97, 0.92, 'D5-95 = ' + str(round(T1[np.argmax(normarias1 > 0.95)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias1 > 0.95)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
 
             subplotCounter+=1
             ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
@@ -339,7 +360,7 @@ def on_click():
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
             ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias2 > 0.75)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
-            ax.text(0.97, 0.92, 'D5-95 = ' + str(round(T1[np.argmax(normarias2 > 0.95)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias2 > 0.95)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
 
             subplotCounter+=1
             ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
@@ -350,13 +371,13 @@ def on_click():
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
             ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias3 > 0.75)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
-            ax.text(0.97, 0.92, 'D5-95 = ' + str(round(T1[np.argmax(normarias3 > 0.95)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias3 > 0.95)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
     
         if str(canvas.plotVel.get()) =="1":
             pb.step(1)
             win.update_idletasks()
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            ax2=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Velocity '+unitsVel1)
@@ -366,7 +387,7 @@ def on_click():
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter,sharex=ax2,sharey=ax2)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Velocity '+unitsVel2)
@@ -376,7 +397,7 @@ def on_click():
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter,sharex=ax2,sharey=ax2)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Velocity '+unitsVel3)
@@ -389,7 +410,7 @@ def on_click():
             pb.step(1)
             win.update_idletasks()
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            ax3 = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Disp '+unitsDispl1)
@@ -397,7 +418,7 @@ def on_click():
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter,sharex=ax3,sharey=ax3)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Disp '+unitsDispl2)
@@ -405,15 +426,12 @@ def on_click():
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter,sharex=ax3,sharey=ax3)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Disp '+unitsDispl3)
             plt.plot(T1,displ3, label="Channel3", color= 'Green', linewidth=1.0)
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
-
-
-       
 
     if EOF == 0 and str(canvas.plotOrbit.get()) =="1":    
         plt.figure(2,figsize=(14,10))
@@ -421,24 +439,33 @@ def on_click():
         locanvasdex1=int(float(canvas.entry_Lowxlim.get())/dtDispl1); highIndex1=int(float(canvas.entry_Highxlim.get())/dtDispl1); 
         locanvasdex2=int(float(canvas.entry_Lowxlim.get())/dtDispl2); highIndex2=int(float(canvas.entry_Highxlim.get())/dtDispl2); 
         locanvasdex3=int(float(canvas.entry_Lowxlim.get())/dtDispl3); highIndex3=int(float(canvas.entry_Highxlim.get())/dtDispl3); 
-        if str(canvas.plotOrbit.get()) =="1":
-            ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter, projection='3d')
-            if "Up" in nameCh1:
-                ax.set_xlabel(nameCh2 + " displacement", fontsize=6)
-                ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
-                ax.set_zlabel(nameCh1 + " displacement", fontsize=6)
-                ax.plot(displ2[locanvasdex2:highIndex2],displ3[locanvasdex3:highIndex3],displ1[locanvasdex1:highIndex1], label="Orbitplot", color= 'Black', linewidth=0.5)
-            elif "Up" in nameCh2:
-                ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
-                ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
-                ax.set_zlabel(nameCh2 + " displacement", fontsize=6)
-                ax.plot(displ1[locanvasdex1:highIndex1],displ3[locanvasdex3:highIndex3],displ2[locanvasdex2:highIndex2], label="Orbitplot", color= 'Black', linewidth=0.5)
-            elif "Up" in nameCh3:
-                ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
-                ax.set_ylabel(nameCh2 + " displacement", fontsize=6)
-                ax.set_zlabel(nameCh3 + " displacement", fontsize=6)
-                ax.plot(displ1[locanvasdex1:highIndex1],displ2[locanvasdex2:highIndex2],displ3[locanvasdex3:highIndex3], label="Orbitplot", color= 'Black', linewidth=0.5)
 
+        ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter, projection='3d')
+        if "Up" in nameCh1:
+            ax.set_xlabel(nameCh2 + " displacement", fontsize=6)
+            ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
+            ax.set_zlabel(nameCh1 + " displacement", fontsize=6)
+            zmin = np.min(displ1[locanvasdex1:highIndex1])
+            zdispRange = np.max(displ1[locanvasdex1:highIndex1])-zmin
+            for i in range(locanvasdex1,highIndex1-2):
+                ax.plot(displ2[i:i+2],displ3[i:i+2],displ1[i:i+2], label="Orbitplot", color=plt.cm.jet(int(255*(displ1[i]-zmin)/zdispRange)), linewidth=1)
+        elif "Up" in nameCh2:
+            ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
+            ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
+            ax.set_zlabel(nameCh2 + " displacement", fontsize=6)
+            zmin =np.min(displ2[locanvasdex1:highIndex1])
+            zdispRange = np.max(displ2[locanvasdex1:highIndex1])-zmin
+            for i in range(locanvasdex2,highIndex2-2):
+                ax.plot(displ1[i:i+2],displ3[i:i+2],displ2[i:i+2], label="Orbitplot", color=plt.cm.jet(int(255*(displ2[i]-zmin)/zdispRange)), linewidth=1)
+        elif "Up" in nameCh3:
+            ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
+            ax.set_ylabel(nameCh2 + " displacement", fontsize=6)
+            ax.set_zlabel(nameCh3 + " displacement", fontsize=6)
+            zmin =np.min(displ3[locanvasdex1:highIndex1])
+            zdispRange = np.max(displ3[locanvasdex1:highIndex1])-zmin
+            for i in range(locanvasdex3,highIndex3-2):
+                ax.plot(displ1[i:i+2],displ2[i:i+2],displ3[i:i+2], label="Orbitplot", color=plt.cm.jet(int(255*(displ3[i]-zmin)/zdispRange)), linewidth=1)
+        #print(zdispRange)
 
         x_limits = ax.get_xlim3d()
         y_limits = ax.get_ylim3d()
@@ -1414,19 +1441,23 @@ style.map('TButton', foreground = [('active', '!disabled', 'red')],
 
 rr=0
 if EOF==1:
-    win.geometry("480x430")
+    win.geometry("570x430")
 else:
-    win.geometry("480x1100")
+    win.geometry("570x900")
 win.title("Read Cosmos V2 Files")
+
+scrollable_frame = ScrollableFrame(win)
+scrollable_frame.pack(fill="both", expand=True)
 
 win.menubar = Menu()
 win.menubar.add_command(label="Quit", command=lambda:onclick2())
 win.menubar.add_command(label="About", command=lambda:myabout())  
 win.config(menu = win.menubar) 
 
-container = ttk.Frame(win)
-container.pack()
-canvas = Canvas(container)
+# Add widgets to the scrollable frame
+f = Frame(scrollable_frame.scrollable_frame)
+f.pack(side=LEFT, expand = 1, pady = 50, padx = 50)
+canvas = Canvas(f)
 
 canvas.grid(row=0,column=0,sticky='news')
 canvas.grid_columnconfigure(1, minsize=100)
