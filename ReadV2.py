@@ -6,12 +6,17 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter import messagebox
 from RS_function import RS_function
+from AnimationControls import Player
 import urllib.request as ur
 import tkinter as tk
 import json as js
 import webbrowser
 import os
 import math
+# import matplotlib.animation as animation
+# from matplotlib.collections import LineCollection
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
+import zipfile, io
 
 class ScrollableFrame(tk.Frame):
     def __init__(self, container, *args, **kwargs):
@@ -34,6 +39,14 @@ class ScrollableFrame(tk.Frame):
         canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
         self.scrollable_frame = scrollable_frame
+
+def on_mousewheel(event):
+    shift = (event.state & 0x1) != 0
+    scroll = -1 if event.delta > 0 else 1
+    if shift:
+        canvas.xview_scroll(scroll, "units")
+    else:
+        canvas.yview_scroll(scroll, "units")
 
 def openMap():
     webbrowser.open('http://www.google.com/maps/place/'+ str(latitude) +','+str(longitude)+'/@'+ str(latitude) +','+str(longitude)+',12z', new=2)
@@ -102,6 +115,8 @@ def accelim(x,y,z):
 
 def on_click():
     #%% Parameters of the response spectra
+    plt.close('all')
+    ani = None
 
     if EOF == 1:
         noSubplotsRows = 1 + canvas.plotVel.get() + canvas.plotDisp.get() + canvas.plotFFT.get()
@@ -109,6 +124,7 @@ def on_click():
         subplotCounter = 1
         plt.figure(1, figsize=(14,10))
         plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+        plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)    
         plt.grid()
         plt.title(nameCh1)
         plt.xlabel('Time (secs)')
@@ -168,9 +184,10 @@ def on_click():
         noSubplotsRows = 1 + canvas.createRS.get()+ canvas.plotVel.get() + canvas.plotDisp.get() + canvas.createRS2.get() +canvas.arias.get();noSubplotsCols = 3;subplotCounter = 1
         yaxislimit = round(accelim(scaledAccel1, scaledAccel2, scaledAccel3)*1.1,2)
         nyaxislimit = 0.0 - yaxislimit
-        plt.figure(figsize=(18,8 + 2*noSubplotsRows))
+        plt.figure(1,figsize=(18,8 + 2*noSubplotsRows))
 
         ax1=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+        plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)    
         plt.grid()
         plt.title(nameCh1)
         plt.xlabel('Time (secs)')
@@ -433,59 +450,199 @@ def on_click():
             plt.plot(T1,displ3, label="Channel3", color= 'Green', linewidth=1.0)
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
 
-    if EOF == 0 and str(canvas.plotOrbit.get()) =="1":    
-        plt.figure(2,figsize=(14,10))
-        noSubplotsRows = 1;noSubplotsCols = 1;subplotCounter = 1
+    if EOF == 0 and str(canvas.plotOrbit.get()) =="1": 
+        global c  
+        fig = plt.figure(2,figsize=(14,10))
+        noSubplotsRows = 3;noSubplotsCols = 2;subplotCounter = 1
         locanvasdex1=int(float(canvas.entry_Lowxlim.get())/dtDispl1); highIndex1=int(float(canvas.entry_Highxlim.get())/dtDispl1); 
         locanvasdex2=int(float(canvas.entry_Lowxlim.get())/dtDispl2); highIndex2=int(float(canvas.entry_Highxlim.get())/dtDispl2); 
         locanvasdex3=int(float(canvas.entry_Lowxlim.get())/dtDispl3); highIndex3=int(float(canvas.entry_Highxlim.get())/dtDispl3); 
 
-        ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter, projection='3d')
+        ax = fig.add_subplot(1,2,subplotCounter, projection='3d')
+        ax2 = fig.add_subplot(noSubplotsRows,noSubplotsCols,2)
+        ax3 = fig.add_subplot(noSubplotsRows,noSubplotsCols,4)
+        ax4 = fig.add_subplot(noSubplotsRows,noSubplotsCols,6)
+
+
+        ax2.set_xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+        ax3.set_xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+        ax4.set_xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
+        if str(canvas.TDRightType.get()) =="Accel":
+            ax2.set_ylabel("Accel (g)")
+            ax3.set_ylabel("Accel (g)")
+            ax4.set_ylabel("Accel (g)")
+        elif str(canvas.TDRightType.get()) =="Vel":
+            ax2.set_ylabel("Vel (cm/sec)")
+            ax3.set_ylabel("Vel (cm/sec)")
+            ax4.set_ylabel("Vel (cm/sec)")
+            yaxislimit = round(accelim(vel1, vel2, vel3)*1.1,2)
+            nyaxislimit = 0.0 - yaxislimit
+        else:
+            ax2.set_ylabel("Disp (cm)")
+            ax3.set_ylabel("Disp (cm)")
+            ax4.set_ylabel("Disp (cm)")
+            yaxislimit = round(accelim(displ1, displ2, displ3)*1.1,2)
+            nyaxislimit = 0.0 - yaxislimit
+
+        ax2.set_ylim([nyaxislimit, yaxislimit])
+        ax3.set_ylim([nyaxislimit, yaxislimit])
+        ax4.set_ylim([nyaxislimit, yaxislimit])
+        ax2.plot([],[], label="Channel2", color= 'Blue', linewidth=1.0)
+        ax3.plot([],[], label="Channel3", color= 'Green', linewidth=1.0)
+        ax4.plot([],[], label="Channel1", color= 'Red', linewidth=1.0)
+        plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
+
         if "Up" in nameCh1:
             ax.set_xlabel(nameCh2 + " displacement", fontsize=6)
             ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
             ax.set_zlabel(nameCh1 + " displacement", fontsize=6)
+            x_limits = [np.min(displ2),np.max(displ2)]
+            y_limits = [np.min(displ3),np.max(displ3)]
+            z_limits = [np.min(displ1),np.max(displ1)]
+
+            x_range = abs(x_limits[1] - x_limits[0])
+            x_middle = np.mean(x_limits)
+            y_range = abs(y_limits[1] - y_limits[0])
+            y_middle = np.mean(y_limits)
+            z_range = abs(z_limits[1] - z_limits[0])
+            z_middle = np.mean(z_limits)
+            plot_radius = 0.5*max([x_range, y_range, z_range])
+
+            ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+            ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+            ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
             zmin = np.min(displ1[locanvasdex1:highIndex1])
             zdispRange = np.max(displ1[locanvasdex1:highIndex1])-zmin
-            for i in range(locanvasdex1,highIndex1-2):
-                ax.plot(displ2[i:i+2],displ3[i:i+2],displ1[i:i+2], label="Orbitplot", color=plt.cm.jet(int(255*(displ1[i]-zmin)/zdispRange)), linewidth=1)
+            points = np.array([displ2[locanvasdex2:locanvasdex2+2],displ3[locanvasdex3:locanvasdex3+2],displ1[locanvasdex1:locanvasdex1+2]]).T.reshape(-1, 1, 3)
+            trace = np.concatenate([points[:-1], points[1:]], axis = 1)
+            line_collection = Line3DCollection(trace, array = displ1[locanvasdex1:locanvasdex1+2], cmap ="rainbow")
+            c=ax.add_collection(line_collection)
+            ax2.set_title(nameCh2)
+            ax3.set_title(nameCh3)
+            ax4.set_title(nameCh1)
+            if str(canvas.TDRightType.get()) =="Accel":
+                x = scaledAccel2; y = scaledAccel3; z = scaledAccel1
+            elif str(canvas.TDRightType.get()) =="Vel":
+                x = vel2; y = vel3; z = vel1
+            else:
+                x = displ2; y = displ3; z = displ1
+            allpoints = np.array([displ2[locanvasdex2:highIndex2],displ3[locanvasdex3:highIndex3],displ1[locanvasdex1:highIndex1]]).T.reshape(-1, 1, 3)
+            alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
+            ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ1[locanvasdex1:highIndex1],zmin,zdispRange,dtDispl1,locanvasdex1), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
+
         elif "Up" in nameCh2:
             ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
             ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
             ax.set_zlabel(nameCh2 + " displacement", fontsize=6)
-            zmin =np.min(displ2[locanvasdex1:highIndex1])
-            zdispRange = np.max(displ2[locanvasdex1:highIndex1])-zmin
-            for i in range(locanvasdex2,highIndex2-2):
-                ax.plot(displ1[i:i+2],displ3[i:i+2],displ2[i:i+2], label="Orbitplot", color=plt.cm.jet(int(255*(displ2[i]-zmin)/zdispRange)), linewidth=1)
+            x_limits = [np.min(displ1),np.max(displ1)]
+            y_limits = [np.min(displ3),np.max(displ3)]
+            z_limits = [np.min(displ2),np.max(displ2)]
+
+            x_range = abs(x_limits[1] - x_limits[0])
+            x_middle = np.mean(x_limits)
+            y_range = abs(y_limits[1] - y_limits[0])
+            y_middle = np.mean(y_limits)
+            z_range = abs(z_limits[1] - z_limits[0])
+            z_middle = np.mean(z_limits)
+            plot_radius = 0.5*max([x_range, y_range, z_range])
+
+            ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+            ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+            ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
+            zmin =np.min(displ2[locanvasdex2:highIndex2])
+            zdispRange = np.max(displ2[locanvasdex2:highIndex2])-zmin
+            points = np.array([displ1[locanvasdex1:locanvasdex1+2],displ3[locanvasdex3:locanvasdex3+2],displ2[locanvasdex2:locanvasdex2+2]]).T.reshape(-1, 1, 3)
+            trace = np.concatenate([points[:-1], points[1:]], axis = 1)
+            line_collection = Line3DCollection(trace, array = displ2[locanvasdex2:locanvasdex2+2], cmap ="rainbow")
+            c=ax.add_collection(line_collection)
+            ax2.set_title(nameCh1)
+            ax3.set_title(nameCh3)
+            ax4.set_title(nameCh2)
+            if str(canvas.TDRightType.get()) =="Accel":
+                x = scaledAccel1; y = scaledAccel3; z = scaledAccel2
+            elif str(canvas.TDRightType.get()) =="Vel":
+                x = vel1; y = vel3; z = vel2
+            else:
+                x = displ1; y = displ3; z = displ2
+            allpoints = np.array([displ1[locanvasdex1:highIndex1],displ3[locanvasdex3:highIndex3],displ2[locanvasdex2:highIndex2]]).T.reshape(-1, 1, 3)
+            alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
+            ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ2[locanvasdex2:highIndex2],zmin,zdispRange,dtDispl2,locanvasdex2,), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
+
         elif "Up" in nameCh3:
             ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
             ax.set_ylabel(nameCh2 + " displacement", fontsize=6)
             ax.set_zlabel(nameCh3 + " displacement", fontsize=6)
-            zmin =np.min(displ3[locanvasdex1:highIndex1])
-            zdispRange = np.max(displ3[locanvasdex1:highIndex1])-zmin
-            for i in range(locanvasdex3,highIndex3-2):
-                ax.plot(displ1[i:i+2],displ2[i:i+2],displ3[i:i+2], label="Orbitplot", color=plt.cm.jet(int(255*(displ3[i]-zmin)/zdispRange)), linewidth=1)
-        #print(zdispRange)
+            x_limits = [np.min(displ1),np.max(displ1)]
+            y_limits = [np.min(displ2),np.max(displ2)]
+            z_limits = [np.min(displ3),np.max(displ3)]
 
-        x_limits = ax.get_xlim3d()
-        y_limits = ax.get_ylim3d()
-        z_limits = ax.get_zlim3d()
+            x_range = abs(x_limits[1] - x_limits[0])
+            x_middle = np.mean(x_limits)
+            y_range = abs(y_limits[1] - y_limits[0])
+            y_middle = np.mean(y_limits)
+            z_range = abs(z_limits[1] - z_limits[0])
+            z_middle = np.mean(z_limits)
+            plot_radius = 0.5*max([x_range, y_range, z_range])
 
-        x_range = abs(x_limits[1] - x_limits[0])
-        x_middle = np.mean(x_limits)
-        y_range = abs(y_limits[1] - y_limits[0])
-        y_middle = np.mean(y_limits)
-        z_range = abs(z_limits[1] - z_limits[0])
-        z_middle = np.mean(z_limits)
-        plot_radius = 0.5*max([x_range, y_range, z_range])
+            ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+            ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+            ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+            
+            zmin =np.min(displ3[locanvasdex3:highIndex3])
+            zdispRange = np.max(displ3[locanvasdex3:highIndex3])-zmin
+            points = np.array([displ1[locanvasdex1:locanvasdex1+2],displ2[locanvasdex2:locanvasdex2+2],displ3[locanvasdex3:locanvasdex3+2]]).T.reshape(-1, 1, 3)
+            trace = np.concatenate([points[:-1], points[1:]], axis = 1)
+            line_collection = Line3DCollection(trace, array = displ3[locanvasdex3:locanvasdex3+2], cmap ="rainbow")
+            c =ax.add_collection(line_collection)
+            ax2.set_title(nameCh1)
+            ax3.set_title(nameCh2)
+            ax4.set_title(nameCh3)
+            if str(canvas.TDRightType.get()) =="Accel":
+                x = scaledAccel1; y = scaledAccel2; z = scaledAccel3
+            elif str(canvas.TDRightType.get()) =="Vel":
+                x = vel1; y = vel2; z = vel3
+            else:
+                x = displ1; y = displ2; z = displ3
+            allpoints = np.array([displ1[locanvasdex1:highIndex1],displ2[locanvasdex2:highIndex2],displ3[locanvasdex3:highIndex3]]).T.reshape(-1, 1, 3)
+            alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
+            ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ3[locanvasdex3:highIndex3],zmin,zdispRange,dtDispl3,locanvasdex3,), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
 
-        ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
-        ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
-        ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
     pb.stop()
-    plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)    
+    
+    # FFwriter = animation.FFMpegWriter(fps=10)
+    # ani.save('animation.mp4', writer = FFwriter)
     plt.show()
+
+
+
+
+
+def update_plot(frame,ax,ax2,ax3,ax4,x,y,z,alltrace,zd,zmin,zdispRange,dt,st):
+    
+    ax.set_title('Time = ' + str(round((st+frame*10)*dt,1)) + ' secs')
+    for collec in ax.collections:
+        collec.remove()
+    for line in ax2.lines:
+        line.remove()
+    for line in ax3.lines:
+        line.remove()
+    for line in ax4.lines:
+        line.remove()
+    trace = alltrace[:frame*10+1]
+    # trace = alltrace[(frame-1)*10:frame*10+1]
+    # linecolor = (255*(np.array(z[(frame-1)*10:frame*10+1])-zmin)/zdispRange).astype(int)
+    linecolor = (255*(np.array(zd[:frame*10+1])-zmin)/zdispRange).astype(int)
+    line_collection = Line3DCollection(trace, color=plt.cm.jet(linecolor),linewidth=2.0)
+    c = ax.add_collection(line_collection)
+
+    ax2.plot(T1[:st+frame*10+2],x[:st+frame*10+2], color= 'Blue', linewidth=1.0)
+    ax3.plot(T1[:st+frame*10+2],y[:st+frame*10+2], color= 'Green', linewidth=1.0)
+    ax4.plot(T1[:st+frame*10+2],z[:st+frame*10+2], color= 'Red', linewidth=1.0)
+
+    return(c)
 
 def on_clickRot():
     #%% Parameters of the response spectra
@@ -549,7 +706,7 @@ def on_clickRot():
     resAngle = np.arctan2(horRec[1,rotmaxLoc],horRec[0,rotmaxLoc])
     #print(resAccelmax, horRec[0,rotmaxLoc]*np.cos(resAngle)+horRec[1,rotmaxLoc]*np.sin(resAngle) )
     plt.plot([0,horRec[0,rotmaxLoc]], [0, horRec[1,rotmaxLoc]], color='red',linewidth=2.0 )
-    plt.annotate(round(resAccelmax,3), xy=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), xytext=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), fontsize=10, color= 'Blue')
+    plt.annotate(str(round(resAccelmax,3)) + "@ " +str(round(resAngle*180/math.pi,2)), xy=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), xytext=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), fontsize=10, color= 'Blue')
     plt.xlabel(horRec1); plt.ylabel(horRec2)
     maxLimit = max(np.max(horRec), np.abs(np.min(horRec)))/0.95
     plt.xlim(-maxLimit, maxLimit)
@@ -557,6 +714,11 @@ def on_clickRot():
     x_left, x_right = ax.get_xlim()
     y_low, y_high = ax.get_ylim()
     ax.set_aspect(abs((x_right-x_left)/(y_low-y_high)))
+    xlabel=ax.get_xticks()
+    zind = np.where(xlabel == 0)[0][0]
+    for i in range(zind,len(xlabel)):
+        cr = plt.Circle((0, 0), xlabel[i], linestyle="--", color= 'k',linewidth=0.3, fill=False)
+        ax.add_patch(cr)
 
     resAccelmax = (horRec[0,:]*np.cos(resAngle)+horRec[1,:]*np.sin(resAngle))
     rotType="Resultant Acceleration in direction of maximum acceleration"
@@ -587,13 +749,32 @@ def rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplo
         win.update_idletasks()
         subplotCounter+=1
         ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-        Sfin= RS_function(resAccelmax, df, tT, xi, Resp_type = 'SA')
-        S=Sfin[0,:]*scaleValue(unitsAccel1)
+
+        if str(canvas.RspSpecType .get()) =="Disp":
+            rT='SD'
+            rL= 'SD (cm)'
+            rU = 'cm'
+        elif str(canvas.RspSpecType .get()) =="Vel":
+            rT ='SV'
+            rL= 'SV (cm/sec)'
+            rU = 'cm/sec'
+        else:
+            rT ='SA'
+            rL ='SA (g)'
+            rU ='g'
+
+
+        Sfin= RS_function(resAccelmax, df, tT, xi, Resp_type = rT)
+        if str(canvas.RspSpecType .get()) =="Accel":
+            S=Sfin[0,:]*scaleValue(unitsAccel1)
+        else:
+            S=Sfin[0,:]
         plt.xlabel('Period (secs)')
-        plt.ylabel('SA (g)')
+        plt.ylabel(rL)
         ax.plot(tT,S,color= 'Red', linewidth=1.0, label = "Resultant Response Spectrum")
-        amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) +"g" , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
-        if str(canvas.includeASCE.get())=="1":
+        amax=[tT[np.argmax(abs(S))], max(abs(S))]; plt.annotate(str(round(amax[0],3)) +"sec, "+str(round(amax[1],2)) + rU , xy=(amax[0], amax[1]), xytext=(amax[0], amax[1]))
+        ax.text(0.97, 0.97, 'Damping=' + str(round(xi,3)), horizontalalignment='right', verticalalignment='top', fontsize=6, color ='Black',transform=ax.transAxes)
+        if str(canvas.includeASCE.get())=="1"and rT =='SA':
             ax.plot(asceSpect["response"]["data"]["multiPeriodDesignSpectrum"]["periods"],\
                 asceSpect["response"]["data"]["multiPeriodDesignSpectrum"]["ordinates"],color= 'blue',linewidth=0.5,label="ASCE7-22 Multiperiod Spectrum")
             ax.plot(asceSpect["response"]["data"]["twoPeriodDesignSpectrum"]["periods"],\
@@ -741,7 +922,7 @@ def on_clickRotAngle():
     rotmax = np.max(resAccelmax)
     #print(resAccelmax, horRec[0,rotmaxLoc]*np.cos(resAngle)+horRec[1,rotmaxLoc]*np.sin(resAngle) )
     plt.plot([0,rotmax*np.cos(resAngle)], [0, rotmax*np.sin(resAngle)], color='red',linewidth=2.0 )
-    #plt.annotate(round(resAccelmax,3), xy=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), xytext=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), fontsize=10, color= 'Blue')
+    plt.annotate(str(round(rotmax,3)) + "@ "+ canvas.entry_Angle.get(), xy=(rotmax*np.cos(resAngle), rotmax*np.sin(resAngle)), xytext=(rotmax*np.cos(resAngle), rotmax*np.sin(resAngle)), fontsize=10, color= 'Blue')
     plt.xlabel(horRec1); plt.ylabel(horRec2)
     maxLimit = max(np.max(horRec), np.abs(np.min(horRec)))/0.95
     plt.xlim(-maxLimit, maxLimit)
@@ -749,7 +930,11 @@ def on_clickRotAngle():
     x_left, x_right = ax.get_xlim()
     y_low, y_high = ax.get_ylim()
     ax.set_aspect(abs((x_right-x_left)/(y_low-y_high)))
-
+    xlabel=ax.get_xticks()
+    zind = np.where(xlabel == 0)[0][0]
+    for i in range(zind,len(xlabel)):
+        cr = plt.Circle((0, 0), xlabel[i], linestyle="--", color= 'k',linewidth=0.3, fill=False)
+        ax.add_patch(cr)
     
     
     rotType="Resultant Acceleration in direction of specified angle"
@@ -850,7 +1035,11 @@ def on_clickRotD50():
         x_left, x_right = ax.get_xlim()
         y_low, y_high = ax.get_ylim()
         ax.set_aspect(abs((x_right-x_left)/(y_low-y_high)))
-
+        xlabel=ax.get_xticks()
+        zind = np.where(xlabel == 0)[0][0]
+        for i in range(zind,len(xlabel)):
+            cr = plt.Circle((0, 0), xlabel[i], linestyle="--", color= 'k',linewidth=0.3, fill=False)
+            ax.add_patch(cr)
 
         Sfin1= RS_function(horRec[0,:], df, tT, xi, Resp_type = 'SA')
         Sfin2= RS_function(horRec[1,:], df, tT, xi, Resp_type = 'SA')
@@ -1004,6 +1193,11 @@ def on_clickRotDisp():
     x_left, x_right = ax.get_xlim()
     y_low, y_high = ax.get_ylim()
     ax.set_aspect(abs((x_right-x_left)/(y_low-y_high)))
+    xlabel=ax.get_xticks()
+    zind = np.where(xlabel == 0)[0][0]
+    for i in range(zind,len(xlabel)):
+        cr = plt.Circle((0, 0), xlabel[i], linestyle="--", color= 'k',linewidth=0.3, fill=False)
+        ax.add_patch(cr)
 
     resAccelmax = (horRec[0,:]*np.cos(resAngle)+horRec[1,:]*np.sin(resAngle))
     
@@ -1081,6 +1275,11 @@ def on_clickRotVel():
     x_left, x_right = ax.get_xlim()
     y_low, y_high = ax.get_ylim()
     ax.set_aspect(abs((x_right-x_left)/(y_low-y_high)))
+    xlabel=ax.get_xticks()
+    zind = np.where(xlabel == 0)[0][0]
+    for i in range(zind,len(xlabel)):
+        cr = plt.Circle((0, 0), xlabel[i], linestyle="--", color= 'k',linewidth=0.3, fill=False)
+        ax.add_patch(cr)
 
     resAccelmax = (horRec[0,:]*np.cos(resAngle)+horRec[1,:]*np.sin(resAngle))
     rotType="Resultant Acceleration in direction of maximum Velocity"
@@ -1289,11 +1488,12 @@ def readFile():
     global EOF
     global unitsAccel1, unitsAccel2, unitsAccel3, unitsVel1, unitsVel2, unitsVel3, unitsDispl1, unitsDispl2, unitsDispl3
 
-    messagebox.showinfo('ReadV2', 'Select COSMOS V2 file (freefield or single channel record)')
+    messagebox.showinfo('ReadV2', 'Select COSMOS V2 file (freefield or single channel record)\n Zip file containing single record downloaded from CESMD/CSMIP ok')
     filetypes = (
-            ('text files', '*.v2'),('text files', '*.V2'),
+            ('V2 files', '*.v2'),('V2 files', '*.V2'),('V2 files', '*.zip'),
             ('All files', '*.*')
         )
+    
     filenames = fd.askopenfilenames(
             title='Open files',
             initialdir='./',
@@ -1302,11 +1502,28 @@ def readFile():
     if len(filenames)==0:
         messagebox.showinfo('Error', 'File not selected, exiting')
         exit()
-        
-    #print(filenames)
-    f=open(filenames[0])
-    #f=open("./ReadV2/ce89781.v2")
-        # islice (f,start, none)
+
+    
+    if filenames[0][-4:]==".zip":
+        archive = zipfile.ZipFile(filenames[0], 'r')
+        flist = archive.namelist()
+        filenames2=io.BytesIO(archive.read(flist[0]))
+        archive2 = zipfile.ZipFile(filenames2, 'r')
+        flist2 = archive2.namelist()
+        for index,vfl in enumerate(flist2):
+            if vfl[-3:]==".v2"or vfl[-3:]==".V2":
+                f=io.TextIOWrapper(io.BytesIO(archive2.read(vfl)))
+                break
+        if index > len(flist):
+                messagebox.showinfo('Error', 'Zip file does not contain .v2 file')
+                exit()
+
+    elif filenames[0][-3:]==".v2" or filenames[0][-3:]==".v2":
+        f=open(filenames[0])
+    else:
+        messagebox.showinfo('Error', 'V2 File not selected, exiting')
+        exit()
+
 
     for line in islice(f, 5, 6):    
         latlong= line[17:40].strip()
@@ -1458,6 +1675,7 @@ win.config(menu = win.menubar)
 f = Frame(scrollable_frame.scrollable_frame)
 f.pack(side=LEFT, expand = 1, pady = 50, padx = 50)
 canvas = Canvas(f)
+canvas.bind_all("<MouseWheel>", on_mousewheel)
 
 canvas.grid(row=0,column=0,sticky='news')
 canvas.grid_columnconfigure(1, minsize=100)
@@ -1551,6 +1769,13 @@ else:
     ttk.Checkbutton(canvas, text="Plot Velocity?", variable=canvas.plotVel).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Displacement?", variable=canvas.plotDisp).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="3D Orbit Plot?", variable=canvas.plotOrbit).grid(row=rr,column=0, sticky="w"); rr+=1
+
+    TDRightList=["Accel","Vel","Disp"]
+    canvas.TDRightType =StringVar()
+    canvas.TDRightType.set("Accel")
+    canvas.label_TDRightType = Label(canvas,text="Accompanying Plots").grid(row=rr,column=0,sticky="e")
+    canvas.list_TDRightType = OptionMenu(canvas,canvas.TDRightType,*TDRightList)
+    canvas.list_TDRightType.grid(row=rr,column=1,sticky="ew"); rr+=1
 
     ttk.Checkbutton(canvas, text="Include ASCE722 Spectra? (Only for Rotated Plots)", variable=canvas.includeASCE).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Checkbutton(canvas, text="Create Tripartite Response Spectra (only for Rotated Plots)?", variable=canvas.createTrip).grid(row=rr,column=0, sticky="w"); rr+=1
