@@ -35,3 +35,6 @@ Changes 12/22/2024
 
 Changes 12/23/2024
 *As some downloaded CESMD records are zipped once and others zipped twice, added code to accept either.
+
+Changes 12/23/2024
+*Added markers for animations.  Fixed all the window titles with record time and date.  Other usability improvements.
