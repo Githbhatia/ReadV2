@@ -32,3 +32,6 @@ Changes 12/8/2024
 
 Changes 12/22/2024
 *Animated 3D-orbit plot  with play, stop and reverse buttons with accompanying side plots that can be acceleration, velocity or displacement.  Circular gridlines added to orbit plots for rotated directions.  v2 files can be zip archives as downloaded from CESMD or CSMIP sites. Other usability improvements.
+
+Changes 12/23/2024
+*As some downloaded CESMD records are zipped once and others zipped twice, added code to accept either.
