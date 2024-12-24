@@ -1439,9 +1439,12 @@ def convertADRS(asceSpect):
         a1 =next(i for i,x in enumerate(multiPeriodSpectra[0,:]) if x >= float(canvas.entry_endPeriod.get()))+1
     else:
         a1 = len(multiPeriodSpectra[0,:])
+    print(a1)
     mPS=np.zeros((2,a1-1))
     mPS[0,:] = (1/scaleValue(unitsAccel1))*multiPeriodSpectra[1,1:a1]/np.square(2*np.pi/multiPeriodSpectra[0,1:a1])
     mPS[1,:] = multiPeriodSpectra[1,1:a1]
+    # print(multiPeriodSpectra)
+    # print(mPS)
 
     MCEmultiPeriodSpectra = np.zeros((2,len(asceSpect["response"]["data"]["multiPeriodMCErSpectrum"]["periods"])))
     MCEmultiPeriodSpectra[0,:] = asceSpect["response"]["data"]["multiPeriodMCErSpectrum"]["periods"]
@@ -1508,15 +1511,24 @@ def readFile():
         archive = zipfile.ZipFile(filenames[0], 'r')
         flist = archive.namelist()
         filenames2=io.BytesIO(archive.read(flist[0]))
-        archive2 = zipfile.ZipFile(filenames2, 'r')
-        flist2 = archive2.namelist()
-        for index,vfl in enumerate(flist2):
-            if vfl[-3:]==".v2"or vfl[-3:]==".V2":
-                f=io.TextIOWrapper(io.BytesIO(archive2.read(vfl)))
-                break
-        if index > len(flist):
-                messagebox.showinfo('Error', 'Zip file does not contain .v2 file')
-                exit()
+        if len(flist) > 1:
+            for index,vfl in enumerate(flist):
+                if vfl[-3:]==".v2"or vfl[-3:]==".V2":
+                    f=io.TextIOWrapper(io.BytesIO(archive.read(vfl)))
+                    break
+            if index > len(flist):
+                    messagebox.showinfo('Error', 'Zip file does not contain .v2 file')
+                    exit()
+        else:
+            archive2 = zipfile.ZipFile(filenames2, 'r')
+            flist2 = archive2.namelist()
+            for index,vfl in enumerate(flist2):
+                if vfl[-3:]==".v2"or vfl[-3:]==".V2":
+                    f=io.TextIOWrapper(io.BytesIO(archive2.read(vfl)))
+                    break
+            if index > len(flist):
+                    messagebox.showinfo('Error', 'Zip file does not contain .v2 file')
+                    exit()
 
     elif filenames[0][-3:]==".v2" or filenames[0][-3:]==".v2":
         f=open(filenames[0])
