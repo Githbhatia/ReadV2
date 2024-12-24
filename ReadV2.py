@@ -122,7 +122,8 @@ def on_click():
         noSubplotsRows = 1 + canvas.plotVel.get() + canvas.plotDisp.get() + canvas.plotFFT.get()
         noSubplotsCols = 1
         subplotCounter = 1
-        plt.figure(1, figsize=(14,10))
+        fig = plt.figure(1, figsize=(14,10))
+        fig.canvas.manager.set_window_title('Plots - '+ recTime)
         plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
         plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)    
         plt.grid()
@@ -184,7 +185,8 @@ def on_click():
         noSubplotsRows = 1 + canvas.createRS.get()+ canvas.plotVel.get() + canvas.plotDisp.get() + canvas.createRS2.get() +canvas.arias.get();noSubplotsCols = 3;subplotCounter = 1
         yaxislimit = round(accelim(scaledAccel1, scaledAccel2, scaledAccel3)*1.1,2)
         nyaxislimit = 0.0 - yaxislimit
-        plt.figure(1,figsize=(18,8 + 2*noSubplotsRows))
+        fig = plt.figure(1,figsize=(18,8 + 2*noSubplotsRows))
+        fig.canvas.manager.set_window_title('Plots - '+ recTime)
 
         ax1=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
         plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)    
@@ -453,6 +455,7 @@ def on_click():
     if EOF == 0 and str(canvas.plotOrbit.get()) =="1": 
         global c  
         fig = plt.figure(2,figsize=(14,10))
+        fig.canvas.manager.set_window_title('Orbit Plot - '+ recTime)
         noSubplotsRows = 3;noSubplotsCols = 2;subplotCounter = 1
         locanvasdex1=int(float(canvas.entry_Lowxlim.get())/dtDispl1); highIndex1=int(float(canvas.entry_Highxlim.get())/dtDispl1); 
         locanvasdex2=int(float(canvas.entry_Lowxlim.get())/dtDispl2); highIndex2=int(float(canvas.entry_Highxlim.get())/dtDispl2); 
@@ -460,8 +463,8 @@ def on_click():
 
         ax = fig.add_subplot(1,2,subplotCounter, projection='3d')
         ax2 = fig.add_subplot(noSubplotsRows,noSubplotsCols,2)
-        ax3 = fig.add_subplot(noSubplotsRows,noSubplotsCols,4)
-        ax4 = fig.add_subplot(noSubplotsRows,noSubplotsCols,6)
+        ax3 = fig.add_subplot(noSubplotsRows,noSubplotsCols,4,sharex=ax2,sharey=ax2)
+        ax4 = fig.add_subplot(noSubplotsRows,noSubplotsCols,6,sharex=ax2,sharey=ax2)
 
 
         ax2.set_xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
@@ -493,9 +496,9 @@ def on_click():
         plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
 
         if "Up" in nameCh1:
-            ax.set_xlabel(nameCh2 + " displacement", fontsize=6)
-            ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
-            ax.set_zlabel(nameCh1 + " displacement", fontsize=6)
+            ax.set_xlabel(nameCh2 + " displacement (cm)", fontsize=7)
+            ax.set_ylabel(nameCh3 + " displacement (cm)", fontsize=7)
+            ax.set_zlabel(nameCh1 + " displacement (cm)", fontsize=7)
             x_limits = [np.min(displ2),np.max(displ2)]
             y_limits = [np.min(displ3),np.max(displ3)]
             z_limits = [np.min(displ1),np.max(displ1)]
@@ -532,9 +535,9 @@ def on_click():
             ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ1[locanvasdex1:highIndex1],zmin,zdispRange,dtDispl1,locanvasdex1), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
 
         elif "Up" in nameCh2:
-            ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
-            ax.set_ylabel(nameCh3 + " displacement", fontsize=6)
-            ax.set_zlabel(nameCh2 + " displacement", fontsize=6)
+            ax.set_xlabel(nameCh1 + " displacement (cm)", fontsize=7)
+            ax.set_ylabel(nameCh3 + " displacement (cm)", fontsize=7)
+            ax.set_zlabel(nameCh2 + " displacement (cm)", fontsize=7)
             x_limits = [np.min(displ1),np.max(displ1)]
             y_limits = [np.min(displ3),np.max(displ3)]
             z_limits = [np.min(displ2),np.max(displ2)]
@@ -571,9 +574,9 @@ def on_click():
             ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ2[locanvasdex2:highIndex2],zmin,zdispRange,dtDispl2,locanvasdex2,), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
 
         elif "Up" in nameCh3:
-            ax.set_xlabel(nameCh1 + " displacement", fontsize=6)
-            ax.set_ylabel(nameCh2 + " displacement", fontsize=6)
-            ax.set_zlabel(nameCh3 + " displacement", fontsize=6)
+            ax.set_xlabel(nameCh1 + " displacement (cm)", fontsize=7)
+            ax.set_ylabel(nameCh2 + " displacement (cm)", fontsize=7)
+            ax.set_zlabel(nameCh3 + " displacement (cm)", fontsize=7)
             x_limits = [np.min(displ1),np.max(displ1)]
             y_limits = [np.min(displ2),np.max(displ2)]
             z_limits = [np.min(displ3),np.max(displ3)]
@@ -631,16 +634,23 @@ def update_plot(frame,ax,ax2,ax3,ax4,x,y,z,alltrace,zd,zmin,zdispRange,dt,st):
         line.remove()
     for line in ax4.lines:
         line.remove()
-    trace = alltrace[:frame*10+1]
-    # trace = alltrace[(frame-1)*10:frame*10+1]
-    # linecolor = (255*(np.array(z[(frame-1)*10:frame*10+1])-zmin)/zdispRange).astype(int)
-    linecolor = (255*(np.array(zd[:frame*10+1])-zmin)/zdispRange).astype(int)
-    line_collection = Line3DCollection(trace, color=plt.cm.jet(linecolor),linewidth=2.0)
-    c = ax.add_collection(line_collection)
 
-    ax2.plot(T1[:st+frame*10+2],x[:st+frame*10+2], color= 'Blue', linewidth=1.0)
-    ax3.plot(T1[:st+frame*10+2],y[:st+frame*10+2], color= 'Green', linewidth=1.0)
-    ax4.plot(T1[:st+frame*10+2],z[:st+frame*10+2], color= 'Red', linewidth=1.0)
+    if frame*10 +1 <= alltrace.shape[0]:
+        trace = alltrace[:frame*10+1]
+        # trace = alltrace[(frame-1)*10:frame*10+1]
+        # linecolor = (255*(np.array(z[(frame-1)*10:frame*10+1])-zmin)/zdispRange).astype(int)
+        linecolor = (255*(np.array(zd[:frame*10+1])-zmin)/zdispRange).astype(int)
+        line_collection = Line3DCollection(trace, color=plt.cm.jet(linecolor),linewidth=2.0)
+        c = ax.add_collection(line_collection)
+        ax.scatter(alltrace[frame*10+1][1][0],alltrace[frame*10+1][1][1],alltrace[frame*10+1][1][2],s=10, color = 'Red')
+
+    if frame*10 +2 <= alltrace.shape[0]:
+        ax2.plot(T1[:st+frame*10+2],x[:st+frame*10+2], color= 'Blue', linewidth=1.0)
+        ax2.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax2.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
+        ax3.plot(T1[:st+frame*10+2],y[:st+frame*10+2], color= 'Green', linewidth=1.0)
+        ax3.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax3.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
+        ax4.plot(T1[:st+frame*10+2],z[:st+frame*10+2], color= 'Red', linewidth=1.0)
+        ax4.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax4.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
 
     return(c)
 
@@ -695,7 +705,8 @@ def on_clickRot():
     pb.start()
     pb.configure(maximum=1.05+(canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get()) )
     win.update_idletasks()
-    plt.figure(3,figsize=(14,15))
+    fig = plt.figure(3,figsize=(14,15))
+    fig.canvas.manager.set_window_title('Rotated plot in direction of maximum acceleration - '+ recTime)
     noSubplotsRows = 1 + math.ceil((canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get())/2);noSubplotsCols = 2;subplotCounter = 1
 
     ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
@@ -707,7 +718,7 @@ def on_clickRot():
     #print(resAccelmax, horRec[0,rotmaxLoc]*np.cos(resAngle)+horRec[1,rotmaxLoc]*np.sin(resAngle) )
     plt.plot([0,horRec[0,rotmaxLoc]], [0, horRec[1,rotmaxLoc]], color='red',linewidth=2.0 )
     plt.annotate(str(round(resAccelmax,3)) + "@ " +str(round(resAngle*180/math.pi,2)), xy=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), xytext=(horRec[0,rotmaxLoc], horRec[1,rotmaxLoc]), fontsize=10, color= 'Blue')
-    plt.xlabel(horRec1); plt.ylabel(horRec2)
+    plt.xlabel(horRec1 + " (g)"); plt.ylabel(horRec2 + " (g)")
     maxLimit = max(np.max(horRec), np.abs(np.min(horRec)))/0.95
     plt.xlim(-maxLimit, maxLimit)
     plt.ylim(-maxLimit, maxLimit)
@@ -910,7 +921,8 @@ def on_clickRotAngle():
     pb.start()
     pb.configure(maximum=1.05+(canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get()) )
     win.update_idletasks()
-    plt.figure(7,figsize=(14,15))
+    fig = plt.figure(7,figsize=(14,15))
+    fig.canvas.manager.set_window_title('Rotated Plot for specified angle - '+ recTime)
     noSubplotsRows = 1 + math.ceil((canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get())/2);noSubplotsCols = 2;subplotCounter = 1
     ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
     plt.title("Orbit plot for acceleration")
@@ -923,7 +935,7 @@ def on_clickRotAngle():
     #print(resAccelmax, horRec[0,rotmaxLoc]*np.cos(resAngle)+horRec[1,rotmaxLoc]*np.sin(resAngle) )
     plt.plot([0,rotmax*np.cos(resAngle)], [0, rotmax*np.sin(resAngle)], color='red',linewidth=2.0 )
     plt.annotate(str(round(rotmax,3)) + "@ "+ canvas.entry_Angle.get(), xy=(rotmax*np.cos(resAngle), rotmax*np.sin(resAngle)), xytext=(rotmax*np.cos(resAngle), rotmax*np.sin(resAngle)), fontsize=10, color= 'Blue')
-    plt.xlabel(horRec1); plt.ylabel(horRec2)
+    plt.xlabel(horRec1 + " (g)"); plt.ylabel(horRec2 + " (g)")
     maxLimit = max(np.max(horRec), np.abs(np.min(horRec)))/0.95
     plt.xlim(-maxLimit, maxLimit)
     plt.ylim(-maxLimit, maxLimit)
@@ -994,7 +1006,8 @@ def on_clickRotD50():
         pb.configure(maximum=182)
         if str(canvas.includeASCE.get())=="1":
             asceSpect = ASCE722Spectra()
-        plt.figure(6,figsize=(14,15))
+        fig = plt.figure(6,figsize=(14,15))
+        fig.canvas.manager.set_window_title('RotD50 Plot - '+ recTime)
         noSubplotsRows = 2 ;noSubplotsCols = 1 + canvas.createTrip.get();subplotCounter = 1
         ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
 
@@ -1101,7 +1114,9 @@ def on_clickRotD50():
         pb.stop()
         
         if str(canvas.createAz3D.get()) =="1":
-            plt.figure(7)
+
+            fig = plt.figure(7)
+            fig.canvas.manager.set_window_title('Specta vs Azimuth - '+ recTime)
             surf = np.zeros((3, 180*len(tT)))
             k=0
             for i in range(0,180,1):
@@ -1175,7 +1190,8 @@ def on_clickRotDisp():
     pb.start()
     pb.configure(maximum=1.05+(canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get()) )
     win.update_idletasks()
-    plt.figure(4,figsize=(14,15))
+    fig = plt.figure(4,figsize=(14,15))
+    fig.canvas.manager.set_window_title('Rotated plot in direction of maximum displacement - '+ recTime)
     noSubplotsRows = 1 + math.ceil((canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get())/2);noSubplotsCols = 2;subplotCounter = 1
     ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
     plt.title("Orbit plot for displacement")
@@ -1185,8 +1201,8 @@ def on_clickRotDisp():
     resAngle = np.arctan2(horDisp[1,rotmaxLoc],horDisp[0,rotmaxLoc])
     #print(resAccelmax, horRec[0,rotmaxLoc]*np.cos(resAngle)+horRec[1,rotmaxLoc]*np.sin(resAngle) )
     plt.plot([0,horDisp[0,rotmaxLoc]], [0, horDisp[1,rotmaxLoc]], color='red',linewidth=2.0 )
-    plt.annotate(round(resDispmax,3), xy=(horDisp[0,rotmaxLoc], horDisp[1,rotmaxLoc]), xytext=(horDisp[0,rotmaxLoc], horDisp[1,rotmaxLoc]), fontsize=10, color= 'Blue')
-    plt.xlabel(horRec1); plt.ylabel(horRec2)
+    plt.annotate(str(round(resDispmax,3)) + "@ " +str(round(resAngle*180/math.pi,2)), xy=(horDisp[0,rotmaxLoc], horDisp[1,rotmaxLoc]), xytext=(horDisp[0,rotmaxLoc], horDisp[1,rotmaxLoc]), fontsize=10, color= 'Blue')
+    plt.xlabel(horRec1 + " (cm)"); plt.ylabel(horRec2 + " (cm)")
     maxLimit = max(np.max(horDisp), np.abs(np.min(horDisp)))/0.95
     plt.xlim(-maxLimit, maxLimit)
     plt.ylim(-maxLimit, maxLimit)
@@ -1257,7 +1273,8 @@ def on_clickRotVel():
     pb.configure(maximum=1.05+(canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get()) )
     win.update_idletasks()
 
-    plt.figure(5,figsize=(14,15))
+    fig = plt.figure(5,figsize=(14,15))
+    fig.canvas.manager.set_window_title('Rotated plot in direction of maximum velocity - '+ recTime)
     noSubplotsRows = 1 + math.ceil((canvas.createRS.get()+canvas.createRS2.get()+canvas.createTrip.get())/2);noSubplotsCols = 2;subplotCounter = 1
     ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
     plt.title("Orbit plot for Velocity")
@@ -1267,8 +1284,8 @@ def on_clickRotVel():
     resAngle = np.arctan2(horVel[1,rotmaxLoc],horVel[0,rotmaxLoc])
     #print(resAccelmax, horRec[0,rotmaxLoc]*np.cos(resAngle)+horRec[1,rotmaxLoc]*np.sin(resAngle) )
     plt.plot([0,horVel[0,rotmaxLoc]], [0, horVel[1,rotmaxLoc]], color='red',linewidth=2.0 )
-    plt.annotate(round(resVelmax,3), xy=(horVel[0,rotmaxLoc], horVel[1,rotmaxLoc]), xytext=(horVel[0,rotmaxLoc], horVel[1,rotmaxLoc]), fontsize=10, color= 'Blue')
-    plt.xlabel(horRec1); plt.ylabel(horRec2)
+    plt.annotate(str(round(resVelmax,3)) + "@ " +str(round(resAngle*180/math.pi,2)), xy=(horVel[0,rotmaxLoc], horVel[1,rotmaxLoc]), xytext=(horVel[0,rotmaxLoc], horVel[1,rotmaxLoc]), fontsize=10, color= 'Blue')
+    plt.xlabel(horRec1 +" (cm/sec)"); plt.ylabel(horRec2 +" (cm/sec)")
     maxLimit = max(np.max(horVel), np.abs(np.min(horVel)))/0.95
     plt.xlim(-maxLimit, maxLimit)
     plt.ylim(-maxLimit, maxLimit)
@@ -1384,7 +1401,7 @@ def tripartitegrids(scale,plt,ax,xl,xr):
                 plt.annotate(m, xy=(t,v), xytext=(t,v), ha='left', va="top",fontsize=5, color= 'm')
 
 def myabout():
-        messagebox.showinfo('ReadV2', 'Read COSMOS V2 files, plot and analyze instrument records of earthquakes \nWritten by HXB')
+        messagebox.showinfo('ReadV2', 'Read CISMIP V2 files, plot and analyze instrument records of earthquakes \nWritten by HXB')
 
 def startlimAccel():
     a1 = next(i for i, x in enumerate(accel1) if abs(x) >1)
@@ -1482,7 +1499,7 @@ def convertADRS(asceSpect):
     return mPS, tPS, MmPS, MtPS
 
 def readFile():
-    global filenames
+    global filenames,recTime
     global latitude, longitude
     global nameCh1,nameCh2,nameCh3,dtAccel1,dtAccel2,dtAccel3,dtDispl1,dtDispl2,dtDispl3,dtAccel1,dtVel2,dtVel3
     global numofPointsAccel1, numofPointsAccel2, numofPointsAccel3
@@ -1491,7 +1508,7 @@ def readFile():
     global EOF
     global unitsAccel1, unitsAccel2, unitsAccel3, unitsVel1, unitsVel2, unitsVel3, unitsDispl1, unitsDispl2, unitsDispl3
 
-    messagebox.showinfo('ReadV2', 'Select COSMOS V2 file (freefield or single channel record)\n Zip file containing single record downloaded from CESMD/CSMIP ok')
+    messagebox.showinfo('ReadV2', 'Select CISMIP V2 file (freefield or single channel record)\n Zip file containing single record downloaded from CESMD/CSMIP ok')
     filetypes = (
             ('V2 files', '*.v2'),('V2 files', '*.V2'),('V2 files', '*.zip'),
             ('All files', '*.*')
@@ -1530,14 +1547,18 @@ def readFile():
                     messagebox.showinfo('Error', 'Zip file does not contain .v2 file')
                     exit()
 
-    elif filenames[0][-3:]==".v2" or filenames[0][-3:]==".v2":
+    elif filenames[0][-3:]==".v2" or filenames[0][-3:]==".V2":
         f=open(filenames[0])
     else:
         messagebox.showinfo('Error', 'V2 File not selected, exiting')
         exit()
 
 
-    for line in islice(f, 5, 6):    
+    for line in islice(f, 2, 3):   
+        recTime = line[:50].strip()
+        # print(recTime)
+
+    for line in islice(f, 2, 3):    
         latlong= line[17:40].strip()
         latitude =float(latlong[:latlong.find(",")-1])
         if latlong[len(latlong)-1:len(latlong)]=="W":
@@ -1673,7 +1694,7 @@ if EOF==1:
     win.geometry("570x430")
 else:
     win.geometry("570x900")
-win.title("Read Cosmos V2 Files")
+win.title("Read CISMIP V2 Files")
 
 scrollable_frame = ScrollableFrame(win)
 scrollable_frame.pack(fill="both", expand=True)
@@ -1695,7 +1716,9 @@ pb = ttk.Progressbar(canvas,orient='horizontal', mode='determinate', length=400)
 pb.value = IntVar()
 
 
-canvas.Label= Label(canvas, text="Read in memory :\n"+ filenames[0]).grid(row=rr,column=0, columnspan=2, sticky="w"); rr+=1
+canvas.Label= Label(canvas, text="Read in memory :").grid(row=rr,column=0, columnspan=2, sticky="w"); rr+=1
+canvas.Label= Label(canvas, text =filenames[0]).grid(row=rr,column=0, columnspan=2, sticky="w"); rr+=1
+canvas.Label= Label(canvas, text=recTime).grid(row=rr,column=0, sticky="w"); rr+=1
 if EOF==1:
     canvas.Label= Label(canvas,text=nameCh1).grid(row=rr,column=0, columnspan=2, sticky="w"); rr+=1
 else:
@@ -1827,6 +1850,5 @@ else:
 
 ttk.Button(canvas, text="Save File", command=saveFile).grid(row=rr,column=0,columnspan = 1)
 ttk.Button(canvas, text="Quit", style = 'W.TButton', command=lambda:onclick2()).grid(row=rr,column=1,columnspan = 1); rr+=1
-
 
 win.mainloop()
