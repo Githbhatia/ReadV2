@@ -626,16 +626,12 @@ def on_click():
 def update_plot(frame,ax,ax2,ax3,ax4,x,y,z,alltrace,zd,zmin,zdispRange,dt,st):
     
     ax.set_title('Time = ' + str(round((st+frame*10)*dt,1)) + ' secs')
-    for collec in ax.collections:
-        collec.remove()
-    for line in ax2.lines:
-        line.remove()
-    for line in ax3.lines:
-        line.remove()
-    for line in ax4.lines:
-        line.remove()
+
+
 
     if frame*10 +1 <= alltrace.shape[0]:
+        for collec in ax.collections:
+            collec.remove()
         trace = alltrace[:frame*10+1]
         # trace = alltrace[(frame-1)*10:frame*10+1]
         # linecolor = (255*(np.array(z[(frame-1)*10:frame*10+1])-zmin)/zdispRange).astype(int)
@@ -645,6 +641,12 @@ def update_plot(frame,ax,ax2,ax3,ax4,x,y,z,alltrace,zd,zmin,zdispRange,dt,st):
         ax.scatter(alltrace[frame*10+1][1][0],alltrace[frame*10+1][1][1],alltrace[frame*10+1][1][2],s=10, color = 'Red')
 
     if frame*10 +2 <= alltrace.shape[0]:
+        for line in ax2.lines:
+            line.remove()
+        for line in ax3.lines:
+            line.remove()
+        for line in ax4.lines:
+            line.remove()
         ax2.plot(T1[:st+frame*10+2],x[:st+frame*10+2], color= 'Blue', linewidth=1.0)
         ax2.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax2.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
         ax3.plot(T1[:st+frame*10+2],y[:st+frame*10+2], color= 'Green', linewidth=1.0)
@@ -652,7 +654,7 @@ def update_plot(frame,ax,ax2,ax3,ax4,x,y,z,alltrace,zd,zmin,zdispRange,dt,st):
         ax4.plot(T1[:st+frame*10+2],z[:st+frame*10+2], color= 'Red', linewidth=1.0)
         ax4.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax4.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
 
-    return(c)
+    return(0)
 
 def on_clickRot():
     #%% Parameters of the response spectra
