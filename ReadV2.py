@@ -504,9 +504,9 @@ def on_click():
         if "90" in xRec:
             xRec = xRec.replace("90 Deg", "EW")
         elif "270" in xRec:
-            xa[1,:]=[i*-1 for i in xa[1,:]]
-            xv[1,:]=[i*-1 for i in xv[1,:]]
-            x[1,:]=[i*-1 for i in x[1,:]]
+            xa[:]=[i*-1 for i in xa[:]]
+            xv[:]=[i*-1 for i in xv[:]]
+            x[:]=[i*-1 for i in x[:]]
             xRec = xRec.replace("270 Deg", "EW")
 
         noSubplotsRows = 3;noSubplotsCols = 2;subplotCounter = 1
@@ -969,7 +969,7 @@ def on_clickRotD50():
         if "90" in horRec1:
             horRec1 = horRec1.replace("90 Deg", "EW")
         elif "270" in horRec1:
-            horRec[0,:]=[x*-1 for x in horRec[0,:]]
+            # horRec[0,:]=[x*-1 for x in horRec[0,:]]
             horRec1 = horRec1.replace("270 Deg", "EW")
 
         plt.close(5)
