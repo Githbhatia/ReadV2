@@ -456,10 +456,61 @@ def on_click():
         global c  
         fig = plt.figure(2,figsize=(14,10))
         fig.canvas.manager.set_window_title('Orbit Plot - '+ recTime)
+
+       
+        if "Up" in nameCh1 or "HNZ" in nameCh1:
+            if "360" in nameCh2 or "180" in nameCh2:
+                xa = scaledAccel3; ya = scaledAccel2; za = scaledAccel1
+                xv = vel3; yv = vel2; zv = vel1
+                x = displ3; y = displ2; z = displ1
+                xRec=nameCh3;yRec=nameCh2;zRec=nameCh1
+            else:
+                xa = scaledAccel2; ya = scaledAccel3; za = scaledAccel1
+                xv = vel2; yv = vel3; zv = vel1
+                x = displ2; y = displ2; z = displ1
+                xRec=nameCh2;yRec=nameCh3;zRec=nameCh1
+        elif "Up" in nameCh2 or "HNZ" in nameCh2:
+            if "360" in nameCh1 or "180" in nameCh1:
+                xa = scaledAccel3; ya = scaledAccel1; za = scaledAccel2
+                xv = vel3; yv = vel1; zv = vel2
+                x = displ3; y = displ1; z = displ2
+                xRec=nameCh3;yRec=nameCh1;zRec=nameCh2
+            else:
+                xa = scaledAccel1; ya = scaledAccel3; za = scaledAccel2
+                xv = vel1; yv = vel3; zv = vel2
+                x = displ1; y = displ3; z = displ2
+                xRec=nameCh1;yRec=nameCh3;zRec=nameCh2
+
+        elif "Up" in nameCh3 or "HNZ" in nameCh3:
+            if "360" in nameCh1 or "180" in nameCh1:
+                xa = scaledAccel2; ya = scaledAccel1; za = scaledAccel3
+                xv = vel2; yv = vel1; zv = vel3
+                x = displ2; y = displ1; z = displ3
+                xRec=nameCh2;yRec=nameCh1;zRec=nameCh3
+            else:
+                xa = scaledAccel1; ya = scaledAccel2; za = scaledAccel3
+                xv = vel1; yv = vel2; zv = vel3
+                x = displ1; y = displ2; z = displ3
+                xRec=nameCh1;yRec=nameCh2;zRec=nameCh3
+        
+        if "360" in yRec:
+            yRec = yRec.replace("360 Deg", "NS")
+        elif "180" in yRec:
+            ya[1,:]=[i*-1 for i in ya[1,:]]
+            yv[1,:]=[i*-1 for i in yv[1,:]]
+            y[1,:]=[i*-1 for i in y[1,:]]
+            yRec = yRec.replace("180 Deg", "NS")
+        
+        if "90" in xRec:
+            xRec = xRec.replace("90 Deg", "EW")
+        elif "270" in xRec:
+            xa[1,:]=[i*-1 for i in xa[1,:]]
+            xv[1,:]=[i*-1 for i in xv[1,:]]
+            x[1,:]=[i*-1 for i in x[1,:]]
+            xRec = xRec.replace("270 Deg", "EW")
+
         noSubplotsRows = 3;noSubplotsCols = 2;subplotCounter = 1
         locanvasdex1=int(float(canvas.entry_Lowxlim.get())/dtDispl1); highIndex1=int(float(canvas.entry_Highxlim.get())/dtDispl1); 
-        locanvasdex2=int(float(canvas.entry_Lowxlim.get())/dtDispl2); highIndex2=int(float(canvas.entry_Highxlim.get())/dtDispl2); 
-        locanvasdex3=int(float(canvas.entry_Lowxlim.get())/dtDispl3); highIndex3=int(float(canvas.entry_Highxlim.get())/dtDispl3); 
 
         ax = fig.add_subplot(1,2,subplotCounter, projection='3d')
         ax2 = fig.add_subplot(noSubplotsRows,noSubplotsCols,2)
@@ -478,13 +529,13 @@ def on_click():
             ax2.set_ylabel("Vel (cm/sec)")
             ax3.set_ylabel("Vel (cm/sec)")
             ax4.set_ylabel("Vel (cm/sec)")
-            yaxislimit = round(accelim(vel1, vel2, vel3)*1.1,2)
+            yaxislimit = round(accelim(xv, yv, zv)*1.1,2)
             nyaxislimit = 0.0 - yaxislimit
         else:
             ax2.set_ylabel("Disp (cm)")
             ax3.set_ylabel("Disp (cm)")
             ax4.set_ylabel("Disp (cm)")
-            yaxislimit = round(accelim(displ1, displ2, displ3)*1.1,2)
+            yaxislimit = round(accelim(x, y, z)*1.1,2)
             nyaxislimit = 0.0 - yaxislimit
 
         ax2.set_ylim([nyaxislimit, yaxislimit])
@@ -495,122 +546,43 @@ def on_click():
         ax4.plot([],[], label="Channel1", color= 'Red', linewidth=1.0)
         plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
 
-        if "Up" in nameCh1:
-            ax.set_xlabel(nameCh2 + " displacement (cm)", fontsize=7)
-            ax.set_ylabel(nameCh3 + " displacement (cm)", fontsize=7)
-            ax.set_zlabel(nameCh1 + " displacement (cm)", fontsize=7)
-            x_limits = [np.min(displ2),np.max(displ2)]
-            y_limits = [np.min(displ3),np.max(displ3)]
-            z_limits = [np.min(displ1),np.max(displ1)]
+        ax.set_xlabel(xRec + " displacement (cm)", fontsize=7)
+        ax.set_ylabel(yRec + " displacement (cm)", fontsize=7)
+        ax.set_zlabel(zRec + " displacement (cm)", fontsize=7)
+        x_limits = [np.min(x),np.max(x)]
+        y_limits = [np.min(y),np.max(y)]
+        z_limits = [np.min(z),np.max(z)]
 
-            x_range = abs(x_limits[1] - x_limits[0])
-            x_middle = np.mean(x_limits)
-            y_range = abs(y_limits[1] - y_limits[0])
-            y_middle = np.mean(y_limits)
-            z_range = abs(z_limits[1] - z_limits[0])
-            z_middle = np.mean(z_limits)
-            plot_radius = 0.5*max([x_range, y_range, z_range])
+        x_range = abs(x_limits[1] - x_limits[0])
+        x_middle = np.mean(x_limits)
+        y_range = abs(y_limits[1] - y_limits[0])
+        y_middle = np.mean(y_limits)
+        z_range = abs(z_limits[1] - z_limits[0])
+        z_middle = np.mean(z_limits)
+        plot_radius = 0.5*max([x_range, y_range, z_range])
 
-            ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
-            ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
-            ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+        ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+        ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+        ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
 
-            zmin = np.min(displ1[locanvasdex1:highIndex1])
-            zdispRange = np.max(displ1[locanvasdex1:highIndex1])-zmin
-            points = np.array([displ2[locanvasdex2:locanvasdex2+2],displ3[locanvasdex3:locanvasdex3+2],displ1[locanvasdex1:locanvasdex1+2]]).T.reshape(-1, 1, 3)
-            trace = np.concatenate([points[:-1], points[1:]], axis = 1)
-            line_collection = Line3DCollection(trace, array = displ1[locanvasdex1:locanvasdex1+2], cmap ="rainbow")
-            c=ax.add_collection(line_collection)
-            ax2.set_title(nameCh2)
-            ax3.set_title(nameCh3)
-            ax4.set_title(nameCh1)
-            if str(canvas.TDRightType.get()) =="Accel":
-                x = scaledAccel2; y = scaledAccel3; z = scaledAccel1
-            elif str(canvas.TDRightType.get()) =="Vel":
-                x = vel2; y = vel3; z = vel1
-            else:
-                x = displ2; y = displ3; z = displ1
-            allpoints = np.array([displ2[locanvasdex2:highIndex2],displ3[locanvasdex3:highIndex3],displ1[locanvasdex1:highIndex1]]).T.reshape(-1, 1, 3)
-            alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
-            ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ1[locanvasdex1:highIndex1],zmin,zdispRange,dtDispl1,locanvasdex1), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
-
-        elif "Up" in nameCh2:
-            ax.set_xlabel(nameCh1 + " displacement (cm)", fontsize=7)
-            ax.set_ylabel(nameCh3 + " displacement (cm)", fontsize=7)
-            ax.set_zlabel(nameCh2 + " displacement (cm)", fontsize=7)
-            x_limits = [np.min(displ1),np.max(displ1)]
-            y_limits = [np.min(displ3),np.max(displ3)]
-            z_limits = [np.min(displ2),np.max(displ2)]
-
-            x_range = abs(x_limits[1] - x_limits[0])
-            x_middle = np.mean(x_limits)
-            y_range = abs(y_limits[1] - y_limits[0])
-            y_middle = np.mean(y_limits)
-            z_range = abs(z_limits[1] - z_limits[0])
-            z_middle = np.mean(z_limits)
-            plot_radius = 0.5*max([x_range, y_range, z_range])
-
-            ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
-            ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
-            ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
-
-            zmin =np.min(displ2[locanvasdex2:highIndex2])
-            zdispRange = np.max(displ2[locanvasdex2:highIndex2])-zmin
-            points = np.array([displ1[locanvasdex1:locanvasdex1+2],displ3[locanvasdex3:locanvasdex3+2],displ2[locanvasdex2:locanvasdex2+2]]).T.reshape(-1, 1, 3)
-            trace = np.concatenate([points[:-1], points[1:]], axis = 1)
-            line_collection = Line3DCollection(trace, array = displ2[locanvasdex2:locanvasdex2+2], cmap ="rainbow")
-            c=ax.add_collection(line_collection)
-            ax2.set_title(nameCh1)
-            ax3.set_title(nameCh3)
-            ax4.set_title(nameCh2)
-            if str(canvas.TDRightType.get()) =="Accel":
-                x = scaledAccel1; y = scaledAccel3; z = scaledAccel2
-            elif str(canvas.TDRightType.get()) =="Vel":
-                x = vel1; y = vel3; z = vel2
-            else:
-                x = displ1; y = displ3; z = displ2
-            allpoints = np.array([displ1[locanvasdex1:highIndex1],displ3[locanvasdex3:highIndex3],displ2[locanvasdex2:highIndex2]]).T.reshape(-1, 1, 3)
-            alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
-            ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ2[locanvasdex2:highIndex2],zmin,zdispRange,dtDispl2,locanvasdex2,), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
-
-        elif "Up" in nameCh3:
-            ax.set_xlabel(nameCh1 + " displacement (cm)", fontsize=7)
-            ax.set_ylabel(nameCh2 + " displacement (cm)", fontsize=7)
-            ax.set_zlabel(nameCh3 + " displacement (cm)", fontsize=7)
-            x_limits = [np.min(displ1),np.max(displ1)]
-            y_limits = [np.min(displ2),np.max(displ2)]
-            z_limits = [np.min(displ3),np.max(displ3)]
-
-            x_range = abs(x_limits[1] - x_limits[0])
-            x_middle = np.mean(x_limits)
-            y_range = abs(y_limits[1] - y_limits[0])
-            y_middle = np.mean(y_limits)
-            z_range = abs(z_limits[1] - z_limits[0])
-            z_middle = np.mean(z_limits)
-            plot_radius = 0.5*max([x_range, y_range, z_range])
-
-            ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
-            ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
-            ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
-            
-            zmin =np.min(displ3[locanvasdex3:highIndex3])
-            zdispRange = np.max(displ3[locanvasdex3:highIndex3])-zmin
-            points = np.array([displ1[locanvasdex1:locanvasdex1+2],displ2[locanvasdex2:locanvasdex2+2],displ3[locanvasdex3:locanvasdex3+2]]).T.reshape(-1, 1, 3)
-            trace = np.concatenate([points[:-1], points[1:]], axis = 1)
-            line_collection = Line3DCollection(trace, array = displ3[locanvasdex3:locanvasdex3+2], cmap ="rainbow")
-            c =ax.add_collection(line_collection)
-            ax2.set_title(nameCh1)
-            ax3.set_title(nameCh2)
-            ax4.set_title(nameCh3)
-            if str(canvas.TDRightType.get()) =="Accel":
-                x = scaledAccel1; y = scaledAccel2; z = scaledAccel3
-            elif str(canvas.TDRightType.get()) =="Vel":
-                x = vel1; y = vel2; z = vel3
-            else:
-                x = displ1; y = displ2; z = displ3
-            allpoints = np.array([displ1[locanvasdex1:highIndex1],displ2[locanvasdex2:highIndex2],displ3[locanvasdex3:highIndex3]]).T.reshape(-1, 1, 3)
-            alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
-            ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,x,y,z,alltrace,displ3[locanvasdex3:highIndex3],zmin,zdispRange,dtDispl3,locanvasdex3,), frames=int((highIndex3-locanvasdex3)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
+        zmin = np.min(z[locanvasdex1:highIndex1])
+        zdispRange = np.max(z[locanvasdex1:highIndex1])-zmin
+        points = np.array([x[locanvasdex1:locanvasdex1+2],y[locanvasdex1:locanvasdex1+2],z[locanvasdex1:locanvasdex1+2]]).T.reshape(-1, 1, 3)
+        trace = np.concatenate([points[:-1], points[1:]], axis = 1)
+        line_collection = Line3DCollection(trace, array = z[locanvasdex1:locanvasdex1+2], cmap ="rainbow")
+        c=ax.add_collection(line_collection)
+        ax2.set_title(xRec)
+        ax3.set_title(yRec)
+        ax4.set_title(zRec)
+        if str(canvas.TDRightType.get()) =="Accel":
+            sx = xa; sy = ya; sz = za
+        elif str(canvas.TDRightType.get()) =="Vel":
+            sx = xv; sy = yv; sz = zv
+        else:
+            sx = x; sy = y; sz = z
+        allpoints = np.array([x[locanvasdex1:highIndex1],y[locanvasdex1:highIndex1],z[locanvasdex1:highIndex1]]).T.reshape(-1, 1, 3)
+        alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
+        ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,sx,sy,sz,alltrace,z[locanvasdex1:highIndex1],zmin,zdispRange,dtDispl1,locanvasdex1), frames=int((highIndex1-locanvasdex1)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
 
 
     pb.stop()
@@ -618,9 +590,6 @@ def on_click():
     # FFwriter = animation.FFMpegWriter(fps=10)
     # ani.save('animation.mp4', writer = FFwriter)
     plt.show()
-
-
-
 
 
 def update_plot(frame,ax,ax2,ax3,ax4,x,y,z,alltrace,zd,zmin,zdispRange,dt,st):
