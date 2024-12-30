@@ -1,6 +1,6 @@
 # ReadV2
 
-Read and plot CISMIP formate v2 seismic ground motion records such as posted on CESMD website (Center of Strong Motion Data https://www.strongmotioncenter.org/). The code can also be used to view building instrument records on the CESMD site and those also available at the HCAI website (https://hcai.ca.gov/construction-finance/facility-detail/ - navigate to a hospital that has instrumented buildings and look under the Instrumented Buildings Tab). Python code reads a .v2 file that contains one or three channels (Free-Field instruments have 3 channels, Instrumented Buildings have records for individual channels.)
+Read and plot CISMIP formated v2 OR COSMOS formated V2c seismic ground motion records such as posted on CESMD website (Center of Strong Motion Data https://www.strongmotioncenter.org/). The code can also be used to view building instrument records on the CESMD site and those also available at the HCAI website (https://hcai.ca.gov/construction-finance/facility-detail/ - navigate to a hospital that has instrumented buildings and look under the Instrumented Buildings Tab). Python code reads a .v2 file that contains one or three channels (Free-Field instruments have 3 channels, Instrumented Buildings have records for individual channels.)
 
 User interface uses tkinter.
 
@@ -38,3 +38,6 @@ Changes 12/23/2024
 
 Changes 12/23/2024
 *Added markers for animations.  Fixed all the window titles with record time and date.  Other usability improvements. Standardize directions for 3D orbit plot as in other orbit plots.
+
+Changes 12/29/2024
+*Added option to read COSMOS V2c files.  Other improvements to speed up animation and spectra calculations (now uses only selected portion of the record).
