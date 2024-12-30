@@ -4,7 +4,7 @@ Read and plot CISMIP formated v2 OR COSMOS formated V2c seismic ground motion re
 
 User interface uses tkinter.
 
-This code functions as a viewer for the ground motion data contained in the v2 file.  
+This code functions as a viewer for the ground motion data contained in the v2 file (1 file containing 3 channels with acceleration, velocity or displacment) or V2c files (9 containing each containing acceleration, velocity or displacement for 3 channels). Zip files containing the v2 or V2c files can be directly read including when they are double zipped as is the case when downloaded from the CESMD website (Center of Strong Motion Data https://www.strongmotioncenter.org/).
 Code shows location of seismic instrument that originated the record on a map. Plots acceleration, integrated velocity and displacement time history for each component. Plot response spectra in SA vs Time Period or ADRS format - computes energy content of each component. Plots 3D orbit plots. Plots rotated resultant in the maximum acceleration, velocity or displacement directions. Create RotD50, RotD00, RotD100 response spectra. Compare to Geomean Spectra. Plot resultant spectra in a Tripartite format. Compare to ASCE 7-22 design spectra using any coordinates in the US - default is the location of the instrument (that is, using the latitude and longitude of the instrument). 
 
 Save time vs. acceleration in a text format.
