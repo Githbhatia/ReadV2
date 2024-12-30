@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from itertools import islice
 from tkinter import *
 from tkinter import ttk
@@ -67,13 +68,23 @@ def absmaxND(a):
 def argmedian(x):
   return np.argpartition(x, len(x) // 2)[len(x) // 2]
 
-def chunkstring(string, length):
+def chunkstring15(string, length):
+    return (float(string[0+i:length+i]) for i in range(0, len(string), length))
+
+def readchunk15(f, numofLines):
+    x=[]
+    for line in islice(f, 0,  numofLines):
+        x = x + list(chunkstring15(line[0:len(line)-1], 15))
+    #print(x)
+    return x
+
+def chunkstring10(string, length):
     return (float(string[0+i:length+i]) for i in range(0, len(string), length))
 
 def readchunk(f, numofLines):
     x=[]
     for line in islice(f, 0,  numofLines):
-        x = x + list(chunkstring(line[0:len(line)-1], 10))
+        x = x + list(chunkstring10(line[0:len(line)-1], 10))
     #print(x)
     return x
 
@@ -124,7 +135,7 @@ def on_click():
         subplotCounter = 1
         fig = plt.figure(1, figsize=(14,10))
         fig.canvas.manager.set_window_title('Plots - '+ recTime)
-        plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+        ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
         plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.05)    
         plt.grid()
         plt.title(nameCh1)
@@ -137,7 +148,7 @@ def on_click():
 
         if str(canvas.plotVel.get()) =="1":
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter, sharex = ax)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel('Velocity '+ unitsVel1)
@@ -146,7 +157,7 @@ def on_click():
 
         if str(canvas.plotDisp.get()) =="1":
             subplotCounter+=1
-            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
+            plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter, sharex  = ax)
             plt.grid()
             plt.xlabel('Time (secs)')
             plt.ylabel("Disp "+ unitsDispl1)
@@ -243,7 +254,7 @@ def on_click():
 
             ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
-            Sfin= RS_function(accel1, df, tT, xi, Resp_type = rT)
+            Sfin= RS_function(accel1[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = rT)
             if str(canvas.RspSpecType .get()) =="Accel":
                 S=Sfin[0,:]*scaleValue(unitsAccel1)
             else:
@@ -258,7 +269,7 @@ def on_click():
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
-            Sfin= RS_function(accel2, df, tT, xi, Resp_type = rT)
+            Sfin= RS_function(accel2[int(float(canvas.entry_Lowxlim.get())/dtAccel2):int(float(canvas.entry_Highxlim.get())/dtAccel2)], df, tT, xi, Resp_type = rT)
             if str(canvas.RspSpecType .get()) =="Accel":
                 S=Sfin[0,:]*scaleValue(unitsAccel2)
             else:
@@ -273,7 +284,7 @@ def on_click():
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
             plt.grid()
-            Sfin= RS_function(accel3, df, tT, xi, Resp_type = rT)
+            Sfin= RS_function(accel3[int(float(canvas.entry_Lowxlim.get())/dtAccel3):int(float(canvas.entry_Highxlim.get())/dtAccel3)], df, tT, xi, Resp_type = rT)
             if str(canvas.RspSpecType .get()) =="Accel":
                 S=Sfin[0,:]*scaleValue(unitsAccel3)
             else:
@@ -291,7 +302,7 @@ def on_click():
             #canvas.Labelplot["text"]="This may take some time"
             subplotCounter+=1
             ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-            Sfin= RS_function(accel1, df, tT, xi, Resp_type = 'PSASD')
+            Sfin= RS_function(accel1[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel1)
             area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
@@ -311,7 +322,7 @@ def on_click():
 
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-            Sfin= RS_function(accel2, df, tT, xi, Resp_type = 'PSASD')
+            Sfin= RS_function(accel2[int(float(canvas.entry_Lowxlim.get())/dtAccel2):int(float(canvas.entry_Highxlim.get())/dtAccel2)], df, tT, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel2)
             area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
@@ -331,7 +342,7 @@ def on_click():
             
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-            Sfin= RS_function(accel3, df, tT, xi, Resp_type = 'PSASD')
+            Sfin= RS_function(accel3[int(float(canvas.entry_Lowxlim.get())/dtAccel3):int(float(canvas.entry_Highxlim.get())/dtAccel3)], df, tT, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel3)
             area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
@@ -367,8 +378,10 @@ def on_click():
             plt.plot(T1,arias1, label="Channel1", color= 'Red', linewidth=1.0)
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
-            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias1 > 0.75)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
-            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias1 > 0.95)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias1 > 0.75)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Blue',transform=ax.transAxes)
+            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias1 > 0.95)] - T1[np.argmax(normarias1 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Green',transform=ax.transAxes)
+            ax.add_patch(patches.Rectangle((T1[np.argmax(normarias1 > 0.05)], 0.0),T1[np.argmax(normarias1 > 0.75)] - T1[np.argmax(normarias1 > 0.05)],ariasmax,fill=True, color = 'Blue', alpha = 0.3) ) 
+            ax.add_patch(patches.Rectangle((T1[np.argmax(normarias1 > 0.75)], 0.0),T1[np.argmax(normarias1 > 0.95)] - T1[np.argmax(normarias1 > 0.75)],ariasmax,fill=True, color = 'Green', alpha = 0.3) ) 
 
             subplotCounter+=1
             ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
@@ -378,8 +391,10 @@ def on_click():
             plt.plot(T1,arias2, label="Channel1", color= 'Red', linewidth=1.0)
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
-            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias2 > 0.75)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
-            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias2 > 0.95)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
+            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias2 > 0.75)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Blue',transform=ax.transAxes)
+            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias2 > 0.95)] - T1[np.argmax(normarias2 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Green',transform=ax.transAxes)
+            ax.add_patch(patches.Rectangle((T1[np.argmax(normarias2 > 0.05)], 0.0),T1[np.argmax(normarias2 > 0.75)] - T1[np.argmax(normarias2 > 0.05)],ariasmax,fill=True, color = 'Blue', alpha = 0.3) ) 
+            ax.add_patch(patches.Rectangle((T1[np.argmax(normarias2 > 0.75)], 0.0),T1[np.argmax(normarias2 > 0.95)] - T1[np.argmax(normarias2 > 0.75)],ariasmax,fill=True, color = 'Green', alpha = 0.3) ) 
 
             subplotCounter+=1
             ax = plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
@@ -389,9 +404,11 @@ def on_click():
             plt.plot(T1,arias3, label="Channel1", color= 'Red', linewidth=1.0)
             plt.ylim([0, ariasmax])
             plt.xlim([float(canvas.entry_Lowxlim.get()), float(canvas.entry_Highxlim.get())])
-            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias3 > 0.75)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
-            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias3 > 0.95)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Black',transform=ax.transAxes)
-    
+            ax.text(0.97, 0.97, 'D5-75 = ' + str(round(T1[np.argmax(normarias3 > 0.75)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Blue',transform=ax.transAxes)
+            ax.text(0.97, 0.90, 'D5-95 = ' + str(round(T1[np.argmax(normarias3 > 0.95)] - T1[np.argmax(normarias3 > 0.05)],3)), horizontalalignment='right', verticalalignment='top', fontsize=9, color ='Green',transform=ax.transAxes)
+            ax.add_patch(patches.Rectangle((T1[np.argmax(normarias3 > 0.05)], 0.0),T1[np.argmax(normarias3 > 0.75)] - T1[np.argmax(normarias3 > 0.05)],ariasmax,fill=True, color = 'Blue', alpha = 0.3) ) 
+            ax.add_patch(patches.Rectangle((T1[np.argmax(normarias3 > 0.75)], 0.0),T1[np.argmax(normarias3 > 0.95)] - T1[np.argmax(normarias3 > 0.75)],ariasmax,fill=True, color = 'Green', alpha = 0.3) )    
+
         if str(canvas.plotVel.get()) =="1":
             pb.step(1)
             win.update_idletasks()
@@ -454,43 +471,45 @@ def on_click():
 
     if EOF == 0 and str(canvas.plotOrbit.get()) =="1": 
         global c  
+        global arate
+        arate = int(canvas.entry_arate.get())
         fig = plt.figure(2,figsize=(14,10))
         fig.canvas.manager.set_window_title('Orbit Plot - '+ recTime)
 
        
         if "Up" in nameCh1 or "HNZ" in nameCh1:
             if "360" in nameCh2 or "180" in nameCh2:
-                xa = scaledAccel3; ya = scaledAccel2; za = scaledAccel1
-                xv = vel3; yv = vel2; zv = vel1
-                x = displ3; y = displ2; z = displ1
+                xa = scaledAccel3.copy(); ya = scaledAccel2.copy(); za = scaledAccel1.copy()
+                xv = vel3.copy(); yv = vel2.copy(); zv = vel1.copy()
+                x = displ3.copy(); y = displ2.copy(); z = displ1.copy()
                 xRec=nameCh3;yRec=nameCh2;zRec=nameCh1
             else:
-                xa = scaledAccel2; ya = scaledAccel3; za = scaledAccel1
-                xv = vel2; yv = vel3; zv = vel1
-                x = displ2; y = displ2; z = displ1
+                xa = scaledAccel2.copy(); ya = scaledAccel3.copy(); za = scaledAccel1.copy()
+                xv = vel2.copy(); yv = vel3.copy(); zv = vel1.copy()
+                x = displ2.copy(); y = displ2.copy(); z = displ1.copy()
                 xRec=nameCh2;yRec=nameCh3;zRec=nameCh1
         elif "Up" in nameCh2 or "HNZ" in nameCh2:
             if "360" in nameCh1 or "180" in nameCh1:
-                xa = scaledAccel3; ya = scaledAccel1; za = scaledAccel2
-                xv = vel3; yv = vel1; zv = vel2
-                x = displ3; y = displ1; z = displ2
+                xa = scaledAccel3.copy(); ya = scaledAccel1.copy(); za = scaledAccel2.copy()
+                xv = vel3.copy(); yv = vel1.copy(); zv = vel2.copy()
+                x = displ3.copy(); y = displ1.copy(); z = displ2.copy()
                 xRec=nameCh3;yRec=nameCh1;zRec=nameCh2
             else:
-                xa = scaledAccel1; ya = scaledAccel3; za = scaledAccel2
-                xv = vel1; yv = vel3; zv = vel2
-                x = displ1; y = displ3; z = displ2
+                xa = scaledAccel1.copy(); ya = scaledAccel3.copy(); za = scaledAccel2.copy()
+                xv = vel1.copy(); yv = vel3.copy(); zv = vel2.copy()
+                x = displ1.copy(); y = displ3.copy(); z = displ2.copy()
                 xRec=nameCh1;yRec=nameCh3;zRec=nameCh2
 
         elif "Up" in nameCh3 or "HNZ" in nameCh3:
             if "360" in nameCh1 or "180" in nameCh1:
-                xa = scaledAccel2; ya = scaledAccel1; za = scaledAccel3
-                xv = vel2; yv = vel1; zv = vel3
-                x = displ2; y = displ1; z = displ3
+                xa = scaledAccel2.copy(); ya = scaledAccel1.copy(); za = scaledAccel3.copy()
+                xv = vel2.copy(); yv = vel1.copy(); zv = vel3.copy()
+                x = displ2.copy(); y = displ1.copy(); z = displ3.copy()
                 xRec=nameCh2;yRec=nameCh1;zRec=nameCh3
             else:
-                xa = scaledAccel1; ya = scaledAccel2; za = scaledAccel3
-                xv = vel1; yv = vel2; zv = vel3
-                x = displ1; y = displ2; z = displ3
+                xa = scaledAccel1.copy(); ya = scaledAccel2.copy(); za = scaledAccel3.copy()
+                xv = vel1.copy(); yv = vel2.copy(); zv = vel3.copy()
+                x = displ1.copy(); y = displ2.copy(); z = displ3.copy()
                 xRec=nameCh1;yRec=nameCh2;zRec=nameCh3
         
         if "360" in yRec:
@@ -582,7 +601,7 @@ def on_click():
             sx = x; sy = y; sz = z
         allpoints = np.array([x[locanvasdex1:highIndex1],y[locanvasdex1:highIndex1],z[locanvasdex1:highIndex1]]).T.reshape(-1, 1, 3)
         alltrace = trace = np.concatenate([allpoints[:-1], allpoints[1:]], axis = 1)
-        ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,sx,sy,sz,alltrace,z[locanvasdex1:highIndex1],zmin,zdispRange,dtDispl1,locanvasdex1), frames=int((highIndex1-locanvasdex1)/10), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/10))  
+        ani = Player(fig=fig, func=update_plot,  fargs=(ax,ax2,ax3,ax4,sx,sy,sz,alltrace,z[locanvasdex1:highIndex1],zmin,zdispRange,dtDispl1,locanvasdex1), frames=int((highIndex1-locanvasdex1)/(10*arate)), interval=1, blit=False, repeat=False,maxi =int((highIndex1-locanvasdex1)/(10*arate)))  
 
 
     pb.stop()
@@ -594,34 +613,34 @@ def on_click():
 
 def update_plot(frame,ax,ax2,ax3,ax4,x,y,z,alltrace,zd,zmin,zdispRange,dt,st):
     
-    ax.set_title('Time = ' + str(round((st+frame*10)*dt,1)) + ' secs')
+    ax.set_title('Time = ' + str(round((st+frame*10*arate)*dt,1)) + ' secs')
 
 
-
-    if frame*10 +1 <= alltrace.shape[0]:
+    if frame*10*arate +2 <= alltrace.shape[0]:
         for collec in ax.collections:
             collec.remove()
-        trace = alltrace[:frame*10+1]
+        trace = alltrace[:frame*10*arate+1]
         # trace = alltrace[(frame-1)*10:frame*10+1]
         # linecolor = (255*(np.array(z[(frame-1)*10:frame*10+1])-zmin)/zdispRange).astype(int)
-        linecolor = (255*(np.array(zd[:frame*10+1])-zmin)/zdispRange).astype(int)
+        linecolor = (255*(np.array(zd[:frame*10*arate+1])-zmin)/zdispRange).astype(int)
         line_collection = Line3DCollection(trace, color=plt.cm.jet(linecolor),linewidth=2.0)
         c = ax.add_collection(line_collection)
-        ax.scatter(alltrace[frame*10+1][1][0],alltrace[frame*10+1][1][1],alltrace[frame*10+1][1][2],s=10, color = 'Red')
+        ax.scatter(alltrace[frame*10*arate+1][1][0],alltrace[frame*10*arate+1][1][1],alltrace[frame*10*arate+1][1][2],s=10, color = 'Red')
 
-    if frame*10 +2 <= alltrace.shape[0]:
+    if frame*10*arate +3 <= alltrace.shape[0]:
         for line in ax2.lines:
             line.remove()
         for line in ax3.lines:
             line.remove()
         for line in ax4.lines:
             line.remove()
-        ax2.plot(T1[:st+frame*10+2],x[:st+frame*10+2], color= 'Blue', linewidth=1.0)
-        ax2.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax2.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
-        ax3.plot(T1[:st+frame*10+2],y[:st+frame*10+2], color= 'Green', linewidth=1.0)
-        ax3.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax3.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
-        ax4.plot(T1[:st+frame*10+2],z[:st+frame*10+2], color= 'Red', linewidth=1.0)
-        ax4.plot([T1[st+frame*10+2],T1[st+frame*10+2]],ax4.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
+        tlim = st+frame*10*arate+2
+        ax2.plot(T1[:tlim],x[:tlim], color= 'Blue', linewidth=1.0)
+        ax2.plot([T1[tlim],T1[tlim]],ax2.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
+        ax3.plot(T1[:tlim],y[:tlim], color= 'Green', linewidth=1.0)
+        ax3.plot([T1[tlim],T1[tlim]],ax3.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
+        ax4.plot(T1[:tlim],z[:tlim], color= 'Red', linewidth=1.0)
+        ax4.plot([T1[tlim],T1[tlim]],ax4.get_ylim(), linestyle="--", color= 'k',linewidth=0.3)
 
     return(0)
 
@@ -632,32 +651,32 @@ def on_clickRot():
        
     if "Up" in nameCh1 or "HNZ" in nameCh1:
         if "360" in nameCh2 or "180" in nameCh2:
-            horRec[0,:] = scaledAccel3
-            horRec[1,:] = scaledAccel2
+            horRec[0,:] = scaledAccel3.copy()
+            horRec[1,:] = scaledAccel2.copy()
             horRec1=nameCh3;horRec2=nameCh2
         else:
-            horRec[0,:] = scaledAccel2
-            horRec[1,:] = scaledAccel3
+            horRec[0,:] = scaledAccel2.copy()
+            horRec[1,:] = scaledAccel3.copy()
             horRec1=nameCh2;horRec2=nameCh3
 
     elif "Up" in nameCh2 or "HNZ" in nameCh2:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel3
-            horRec[1,:] = scaledAccel1
+            horRec[0,:] = scaledAccel3.copy()
+            horRec[1,:] = scaledAccel1.copy()
             horRec1=nameCh3;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1
-            horRec[1,:] = scaledAccel3
+            horRec[0,:] = scaledAccel1.copy()
+            horRec[1,:] = scaledAccel3.copy()
             horRec1=nameCh1;horRec2=nameCh3
 
     elif "Up" in nameCh3 or "HNZ" in nameCh3:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel2
-            horRec[1,:] = scaledAccel1
+            horRec[0,:] = scaledAccel2.copy()
+            horRec[1,:] = scaledAccel1.copy()
             horRec1=nameCh2;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1
-            horRec[1,:] = scaledAccel2
+            horRec[0,:] = scaledAccel1.copy()
+            horRec[1,:] = scaledAccel2.copy()
             horRec1=nameCh1;horRec2=nameCh2
     
     if "360" in horRec2:
@@ -746,7 +765,7 @@ def rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplo
             rU ='g'
 
 
-        Sfin= RS_function(resAccelmax, df, tT, xi, Resp_type = rT)
+        Sfin= RS_function(resAccelmax[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = rT)
         if str(canvas.RspSpecType .get()) =="Accel":
             S=Sfin[0,:]*scaleValue(unitsAccel1)
         else:
@@ -776,7 +795,7 @@ def rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplo
         win.update_idletasks()
         subplotCounter+=1
         ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-        Sfin= RS_function(resAccelmax, df, tT, xi, Resp_type = 'PSASD')
+        Sfin= RS_function(resAccelmax[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'PSASD')
         S=Sfin[0,:]*scaleValue(unitsAccel1)
         area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
         #print(area)
@@ -806,7 +825,7 @@ def rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplo
         win.update_idletasks()
         subplotCounter+=1
         ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-        Sfin= RS_function(resAccelmax, df, tT, xi, Resp_type = 'SA')
+        Sfin= RS_function(resAccelmax[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'SA')
         S=Sfin[0,:]/(2*np.pi/tT)
         plt.xlabel('Period (secs)')
         plt.ylabel('Psuedo Velocity '+ unitsVel1)
@@ -848,32 +867,32 @@ def on_clickRotAngle():
 
     if "Up" in nameCh1 or "HNZ" in nameCh1:
         if "360" in nameCh2 or "180" in nameCh2:
-            horRec[0,:] = scaledAccel3
-            horRec[1,:] = scaledAccel2
+            horRec[0,:] = scaledAccel3.copy()
+            horRec[1,:] = scaledAccel2.copy()
             horRec1=nameCh3;horRec2=nameCh2
         else:
-            horRec[0,:] = scaledAccel2
-            horRec[1,:] = scaledAccel3
+            horRec[0,:] = scaledAccel2.copy()
+            horRec[1,:] = scaledAccel3.copy()
             horRec1=nameCh2;horRec2=nameCh3
 
     elif "Up" in nameCh2 or "HNZ" in nameCh2:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel3
-            horRec[1,:] = scaledAccel1
+            horRec[0,:] = scaledAccel3.copy()
+            horRec[1,:] = scaledAccel1.copy()
             horRec1=nameCh3;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1
-            horRec[1,:] = scaledAccel3
+            horRec[0,:] = scaledAccel1.copy()
+            horRec[1,:] = scaledAccel3.copy()
             horRec1=nameCh1;horRec2=nameCh3
 
     elif "Up" in nameCh3 or "HNZ" in nameCh3:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel2
-            horRec[1,:] = scaledAccel1
+            horRec[0,:] = scaledAccel2.copy()
+            horRec[1,:] = scaledAccel1.copy()
             horRec1=nameCh2;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1
-            horRec[1,:] = scaledAccel2
+            horRec[0,:] = scaledAccel1.copy()
+            horRec[1,:] = scaledAccel2.copy()
             horRec1=nameCh1;horRec2=nameCh2
     
     if "360" in horRec2:
@@ -932,32 +951,32 @@ def on_clickRotD50():
     if res:
         if "Up" in nameCh1 or "HNZ" in nameCh1:
             if "360" in nameCh2 or "180" in nameCh2:
-                horRec[0,:] = scaledAccel3
-                horRec[1,:] = scaledAccel2
+                horRec[0,:] = scaledAccel3.copy()
+                horRec[1,:] = scaledAccel2.copy()
                 horRec1=nameCh3;horRec2=nameCh2
             else:
-                horRec[0,:] = scaledAccel2
-                horRec[1,:] = scaledAccel3
+                horRec[0,:] = scaledAccel2.copy()
+                horRec[1,:] = scaledAccel3.copy()
                 horRec1=nameCh2;horRec2=nameCh3
 
         elif "Up" in nameCh2 or "HNZ" in nameCh2:
             if "360" in nameCh1 or "180" in nameCh1:
-                horRec[0,:] = scaledAccel3
-                horRec[1,:] = scaledAccel1
+                horRec[0,:] = scaledAccel3.copy()
+                horRec[1,:] = scaledAccel1.copy()
                 horRec1=nameCh3;horRec2=nameCh1
             else:
-                horRec[0,:] = scaledAccel1
-                horRec[1,:] = scaledAccel3
+                horRec[0,:] = scaledAccel1.copy()
+                horRec[1,:] = scaledAccel3.copy()
                 horRec1=nameCh1;horRec2=nameCh3
 
         elif "Up" in nameCh3 or "HNZ" in nameCh3:
             if "360" in nameCh1 or "180" in nameCh1:
-                horRec[0,:] = scaledAccel2
-                horRec[1,:] = scaledAccel1
+                horRec[0,:] = scaledAccel2.copy()
+                horRec[1,:] = scaledAccel1.copy()
                 horRec1=nameCh2;horRec2=nameCh1
             else:
-                horRec[0,:] = scaledAccel1
-                horRec[1,:] = scaledAccel2
+                horRec[0,:] = scaledAccel1.copy()
+                horRec[1,:] = scaledAccel2.copy()
                 horRec1=nameCh1;horRec2=nameCh2
         
         if "360" in horRec2:
@@ -969,7 +988,7 @@ def on_clickRotD50():
         if "90" in horRec1:
             horRec1 = horRec1.replace("90 Deg", "EW")
         elif "270" in horRec1:
-            # horRec[0,:]=[x*-1 for x in horRec[0,:]]
+            horRec[0,:]=[x*-1 for x in horRec[0,:]]
             horRec1 = horRec1.replace("270 Deg", "EW")
 
         plt.close(5)
@@ -996,7 +1015,7 @@ def on_clickRotD50():
             resAccel = (horRec[0,:]*np.cos(resAngle)+horRec[1,:]*np.sin(resAngle))
             rotmaxlimit[i,:] = absmaxND(resAccel)*np.cos(resAngle), absmaxND(resAccel)*np.sin(resAngle)
             rotmaxlimit[i+180,:] = -absmaxND(resAccel)*np.cos(resAngle), -absmaxND(resAccel)*np.sin(resAngle)
-            Sfin= RS_function(resAccel, df, tT, xi, Resp_type = 'SA')
+            Sfin= RS_function(resAccel[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'SA')
             rotmax[i,:]= Sfin[0,:]
             pb.step(1)
             win.update_idletasks()
@@ -1025,8 +1044,8 @@ def on_clickRotD50():
             cr = plt.Circle((0, 0), xlabel[i], linestyle="--", color= 'k',linewidth=0.3, fill=False)
             ax.add_patch(cr)
 
-        Sfin1= RS_function(horRec[0,:], df, tT, xi, Resp_type = 'SA')
-        Sfin2= RS_function(horRec[1,:], df, tT, xi, Resp_type = 'SA')
+        Sfin1= RS_function(horRec[0,:][int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'SA')
+        Sfin2= RS_function(horRec[1,:][int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'SA')
         geomeanSpectra = np.sqrt(np.array(Sfin1[0:])*np.array(Sfin2[0,:]))
 
         subplotCounter+=1
@@ -1117,32 +1136,32 @@ def on_clickRotDisp():
   
     if "Up" in nameCh1 or "HNZ" in nameCh1:
         if "360" in nameCh2 or "180" in nameCh2:
-            horRec[0,:] = scaledAccel3; horDisp[0,:] = displ3
-            horRec[1,:] = scaledAccel2; horDisp[1,:] = displ2
+            horRec[0,:] = scaledAccel3.copy(); horDisp[0,:] = displ3.copy()
+            horRec[1,:] = scaledAccel2.copy(); horDisp[1,:] = displ2.copy()
             horRec1=nameCh3;horRec2=nameCh2
         else:
-            horRec[0,:] = scaledAccel2; horDisp[0,:] = displ2
-            horRec[1,:] = scaledAccel3; horDisp[1,:] = displ3
+            horRec[0,:] = scaledAccel2.copy(); horDisp[0,:] = displ2.copy()
+            horRec[1,:] = scaledAccel3.copy(); horDisp[1,:] = displ3.copy()
             horRec1=nameCh2;horRec2=nameCh3
 
     elif "Up" in nameCh2 or "HNZ" in nameCh2:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel3; horDisp[0,:] = displ3
-            horRec[1,:] = scaledAccel1; horDisp[1,:] = displ1
+            horRec[0,:] = scaledAccel3.copy(); horDisp[0,:] = displ3.copy()
+            horRec[1,:] = scaledAccel1.copy(); horDisp[1,:] = displ1.copy()
             horRec1=nameCh3;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1; horDisp[0,:] = displ1
-            horRec[1,:] = scaledAccel3; horDisp[1,:] = displ3
+            horRec[0,:] = scaledAccel1.copy(); horDisp[0,:] = displ1.copy()
+            horRec[1,:] = scaledAccel3.copy(); horDisp[1,:] = displ3.copy()
             horRec1=nameCh1;horRec2=nameCh3
 
     elif "Up" in nameCh3 or "HNZ" in nameCh3:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel2; horDisp[0,:] = displ2
-            horRec[1,:] = scaledAccel1; horDisp[1,:] = displ1
+            horRec[0,:] = scaledAccel2.copy(); horDisp[0,:] = displ2.copy()
+            horRec[1,:] = scaledAccel1.copy(); horDisp[1,:] = displ1.copy()
             horRec1=nameCh2;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1; horDisp[0,:] = displ1
-            horRec[1,:] = scaledAccel2; horDisp[1,:] = displ2
+            horRec[0,:] = scaledAccel1.copy(); horDisp[0,:] = displ1.copy()
+            horRec[1,:] = scaledAccel2.copy(); horDisp[1,:] = displ2.copy()
             horRec1=nameCh1;horRec2=nameCh2
     
     if "360" in horRec2:
@@ -1154,6 +1173,7 @@ def on_clickRotDisp():
     if "90" in horRec1:
         horRec1 = horRec1.replace("90 Deg", "EW")
     elif "270" in horRec1:
+
         horRec[0,:]=[x*-1 for x in horRec[0,:]];horDisp[0,:]=[x*-1 for x in horDisp[0,:]]
         horRec1 = horRec1.replace("270 Deg", "EW")
 
@@ -1199,32 +1219,32 @@ def on_clickRotVel():
   
     if "Up" in nameCh1 or "HNZ" in nameCh1:
         if "360" in nameCh2 or "180" in nameCh2:
-            horRec[0,:] = scaledAccel3; horVel[0,:] = vel3
-            horRec[1,:] = scaledAccel2; horVel[1,:] = vel2
+            horRec[0,:] = scaledAccel3.copy(); horVel[0,:] = vel3.copy()
+            horRec[1,:] = scaledAccel2.copy(); horVel[1,:] = vel2.copy()
             horRec1=nameCh3;horRec2=nameCh2
         else:
-            horRec[0,:] = scaledAccel2; horVel[0,:] = vel2
-            horRec[1,:] = scaledAccel3; horVel[1,:] = vel3
+            horRec[0,:] = scaledAccel2.copy(); horVel[0,:] = vel2.copy()
+            horRec[1,:] = scaledAccel3.copy(); horVel[1,:] = vel3.copy()
             horRec1=nameCh2;horRec2=nameCh3
 
     elif "Up" in nameCh2 or "HNZ" in nameCh2:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel3; horVel[0,:] = vel3
-            horRec[1,:] = scaledAccel1; horVel[1,:] = vel1
+            horRec[0,:] = scaledAccel3.copy(); horVel[0,:] = vel3.copy()
+            horRec[1,:] = scaledAccel1.copy(); horVel[1,:] = vel1.copy()
             horRec1=nameCh3;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1; horVel[0,:] = vel1
-            horRec[1,:] = scaledAccel3; horVel[1,:] = vel3
+            horRec[0,:] = scaledAccel1.copy(); horVel[0,:] = vel1.copy()
+            horRec[1,:] = scaledAccel3.copy(); horVel[1,:] = vel3.copy()
             horRec1=nameCh1;horRec2=nameCh3
 
     elif "Up" in nameCh3 or "HNZ" in nameCh3:
         if "360" in nameCh1 or "180" in nameCh1:
-            horRec[0,:] = scaledAccel2; horVel[0,:] = vel2
-            horRec[1,:] = scaledAccel1; horVel[1,:] = vel1
+            horRec[0,:] = scaledAccel2.copy(); horVel[0,:] = vel2.copy()
+            horRec[1,:] = scaledAccel1.copy(); horVel[1,:] = vel1.copy()
             horRec1=nameCh2;horRec2=nameCh1
         else:
-            horRec[0,:] = scaledAccel1; horVel[0,:] = vel1
-            horRec[1,:] = scaledAccel2; horVel[1,:] = vel2
+            horRec[0,:] = scaledAccel1.copy(); horVel[0,:] = vel1.copy()
+            horRec[1,:] = scaledAccel2.copy(); horVel[1,:] = vel2.copy()
             horRec1=nameCh1;horRec2=nameCh2
     
     if "360" in horRec2:
@@ -1305,7 +1325,7 @@ def saveFile():
         index = len(T3)
         with open(dir_name +'/Ch3.txt', 'w') as f:
             while j < index:
-                f.write(str(round(T3[j],))+ " " + str(scaledAccel3[j])+"\n")
+                f.write(str(round(T3[j],3))+ " " + str(scaledAccel3[j])+"\n")
                 j+= 1
 
 def radialPeriods(scale, plt, ax):
@@ -1372,23 +1392,23 @@ def tripartitegrids(scale,plt,ax,xl,xr):
                 plt.annotate(m, xy=(t,v), xytext=(t,v), ha='left', va="top",fontsize=5, color= 'm')
 
 def myabout():
-        messagebox.showinfo('ReadV2', 'Read CISMIP V2 files, plot and analyze instrument records of earthquakes \nWritten by HXB')
+        messagebox.showinfo('ReadV2', 'Read CISMIP v2/COSMOS V2c files, plot and analyze instrument records of earthquakes \nWritten by HXB')
 
 def startlimAccel():
-    a1 = next(i for i, x in enumerate(accel1) if abs(x) >1)
+    a1 = next(i for i, x in enumerate(accel1) if abs(x) >2)
     startTime  = max(a1*dtAccel1- 2, 0)
     if EOF==0:
-        a2 = next(i for i, x in enumerate(accel2) if abs(x) >1)
-        a3 = next(i for i, x in enumerate(accel3) if abs(x) >1)
+        a2 = next(i for i, x in enumerate(accel2) if abs(x) >2)
+        a3 = next(i for i, x in enumerate(accel3) if abs(x) >2)
         startTime  = max(min(a1*dtAccel1,a2*dtAccel2,a3*dtAccel3) - 2, 0)
     return round(startTime,2)
 
 def endlimAccel():
-    a1 = next(i for i, x in reversed(list(enumerate(accel1))) if abs(x) >1)
+    a1 = next(i for i, x in reversed(list(enumerate(accel1))) if abs(x) >2)
     endTime  = max(a1*dtAccel1+ 2, 0)
     if EOF==0:
-        a2 = next(i for i, x in reversed(list(enumerate(accel2))) if abs(x) >1)
-        a3 = next(i for i, x in reversed(list(enumerate(accel3))) if abs(x) >1)
+        a2 = next(i for i, x in reversed(list(enumerate(accel2))) if abs(x) >2)
+        a3 = next(i for i, x in reversed(list(enumerate(accel3))) if abs(x) >2)
         endTime  = max(min(a1*dtAccel1,a2*dtAccel2,a3*dtAccel3) +2, 0)
     return round(endTime,2)
 
@@ -1469,19 +1489,47 @@ def convertADRS(asceSpect):
 
     return mPS, tPS, MmPS, MtPS
 
+def readFileV2c(f, f_name):
+    for line in islice(f, 1, 2):   
+        recTime = line[10:].strip()
+        # print(recTime)
+    for line in islice(f, 6, 7):
+        nameCh=f_name[:f_name.find(".V2c")-7] + " " +line[13:37].strip()
+    # print(nameCh)
+    for line in islice(f, 15, 16):
+        headerPoints = int(line[:5].strip())
+        headerLines = int(line[line.find("lines")-4:line.find("lines")].strip())
+    # print(headerPoints); print(headerLines)
+    header = readchunk15(f,headerLines)
+    # print(header)
+    latitude = header[0]
+    longitude = header[1]
+    # print(latitude, longitude)
+    dt = header[33]
+    # print(dt)
+    for line in islice(f, 0, 1):
+        commentLines = int(line[:5].strip())
+    for line in islice(f, commentLines, commentLines+1):
+        numofPoints =int(line[:9].strip())
+    # print(numofPoints)
+    accel = readchunk15(f,numofPoints)
+    # print(accel)
+    f.close()
+    return recTime,latitude,longitude,nameCh,dt,numofPoints,accel
+
 def readFile():
-    global filenames,recTime
+    global filenames,recTime,recTime
     global latitude, longitude
-    global nameCh1,nameCh2,nameCh3,dtAccel1,dtAccel2,dtAccel3,dtDispl1,dtDispl2,dtDispl3,dtAccel1,dtVel2,dtVel3
+    global nameCh1,nameCh2,nameCh3,dtAccel1,dtAccel2,dtAccel3,dtDispl1,dtDispl2,dtDispl3,dtAccel1,dtVel2,dtVel3,dtVel1
     global numofPointsAccel1, numofPointsAccel2, numofPointsAccel3
     global T1,T2,T3
     global scaledAccel1, scaledAccel2, scaledAccel3, accel1, accel2, accel3, vel1, vel2, vel3,displ1, displ2, displ3
     global EOF
     global unitsAccel1, unitsAccel2, unitsAccel3, unitsVel1, unitsVel2, unitsVel3, unitsDispl1, unitsDispl2, unitsDispl3
-
-    messagebox.showinfo('ReadV2', 'Select CISMIP V2 file (freefield or single channel record)\n Zip file containing single record downloaded from CESMD/CSMIP ok')
+      
+    messagebox.showinfo('ReadV2/V2C', 'Select free-field file, three choices:\n1. Single file CISMIP format .v2 file\n2. Zip file containing CISMIP format .v2 (can be double zipped as downloaded)\n3. Zip file containing COSMOS format .V2c files (can be double zipped as downloaded). V2c Zip files can take upto a minute to read')
     filetypes = (
-            ('V2 files', '*.v2'),('V2 files', '*.V2'),('V2 files', '*.zip'),
+            ('V2/V2c files', '*.v2'),('V2/V2c files', '*.V2'),('V2/V2c files', '*.zip'),
             ('All files', '*.*')
         )
     
@@ -1494,156 +1542,205 @@ def readFile():
         messagebox.showinfo('Error', 'File not selected, exiting')
         exit()
 
-    
+    V2c = V2 = False
+    f= None
+    f_all=[];f_name=[]
     if filenames[0][-4:]==".zip":
         archive = zipfile.ZipFile(filenames[0], 'r')
         flist = archive.namelist()
         filenames2=io.BytesIO(archive.read(flist[0]))
         if len(flist) > 1:
             for index,vfl in enumerate(flist):
+                if vfl[-4:]==".V2c"or vfl[-4:]==".V2C":
+                    f_all.append(io.TextIOWrapper(io.BytesIO(archive.read(vfl))))
+                    f_name.append(vfl)
+                    V2c =True
                 if vfl[-3:]==".v2"or vfl[-3:]==".V2":
                     f=io.TextIOWrapper(io.BytesIO(archive.read(vfl)))
+                    V2 =True
                     break
-            if index > len(flist):
-                    messagebox.showinfo('Error', 'Zip file does not contain .v2 file')
-                    exit()
+            if len(f_all) == 0 and f == None:
+                messagebox.showinfo('Error', 'Zip file does not contain freefield .v2 or .V2c file')
+                exit()
         else:
             archive2 = zipfile.ZipFile(filenames2, 'r')
             flist2 = archive2.namelist()
             for index,vfl in enumerate(flist2):
+                if vfl[-4:]==".V2c"or vfl[-4:]==".V2C":
+                    f_all.append(io.TextIOWrapper(io.BytesIO(archive2.read(vfl))))
+                    f_name.append(vfl)
+                    V2c = True
                 if vfl[-3:]==".v2"or vfl[-3:]==".V2":
                     f=io.TextIOWrapper(io.BytesIO(archive2.read(vfl)))
+                    V2 = True
                     break
-            if index > len(flist):
-                    messagebox.showinfo('Error', 'Zip file does not contain .v2 file')
-                    exit()
-
+            if len(f_all) == 0 and f == None:
+                messagebox.showinfo('Error', 'Zip file does not contain freefield .v2 or .V2c file')
+                exit()
     elif filenames[0][-3:]==".v2" or filenames[0][-3:]==".V2":
         f=open(filenames[0])
+        V2 = True
     else:
         messagebox.showinfo('Error', 'V2 File not selected, exiting')
         exit()
 
-
-    for line in islice(f, 2, 3):   
-        recTime = line[:50].strip()
+    if V2c:
+        EOF = 0
+        for index,vfl in enumerate(f_name):
+            print("Reading V2c files")
+            if "HNE.--.acc" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh1,dtAccel1,numofPointsAccel1,accel1 = readFileV2c(f,f_name[index])
+            if "HNN.--.acc" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh2,dtAccel2,numofPointsAccel2,accel2 = readFileV2c(f,f_name[index])
+            if "HNZ.--.acc" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh3,dtAccel3,numofPointsAccel3,accel3 = readFileV2c(f,f_name[index])
+            if "HNE.--.vel" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh1,dtVel1,numofPointsVel1,vel1 = readFileV2c(f,f_name[index])
+            if "HNN.--.vel" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh2,dtVel2,numofPointsVel2,vel2 = readFileV2c(f,f_name[index])
+            if "HNZ.--.vel" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh3,dtVel3,numofPointsVel3,vel3 = readFileV2c(f,f_name[index])
+            if "HNE.--.dis" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh1,dtDispl1,numofPointsDispl1,displ1 = readFileV2c(f,f_name[index])
+            if "HNN.--.dis" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh2,dtDispl2,numofPointsDispl2,displ2 = readFileV2c(f,f_name[index])
+            if "HNZ.--.dis" in vfl:
+                f = f_all[index]
+                recTime,latitude,longitude,nameCh3,dtDispl3,numofPointsDispl2,displ3 = readFileV2c(f,f_name[index])
+        print("Completed reading V2c files")
+        unitsAccel1 = unitsAccel2 = unitsAccel3 = "cm/sec2"
+        unitsVel1 = unitsVel2 = unitsVel3 = "cm/sec"
+        unitsDispl1 = unitsDispl2 = unitsDispl3 = "cm"
+    elif V2:
+        for line in islice(f, 2, 3):   
+            recTime = line[:50].strip()
         # print(recTime)
 
-    for line in islice(f, 2, 3):    
-        latlong= line[17:40].strip()
-        latitude =float(latlong[:latlong.find(",")-1])
-        if latlong[len(latlong)-1:len(latlong)]=="W":
-            longitude =float("-"+latlong[latlong.find(",")+1: len(latlong)-1].strip())
-        else:
-            longitude =float(latlong[latlong.find(",")+1: len(latlong)-1].strip())
-        #print(latitude, longitude)
-    for line in islice(f, 17, 18):
-        nameCh1=line[26:].strip()
-    for line in islice(f, 0, 1):
-        nameCh1=nameCh1 + line.strip()
-        #print(nameCh1)
+        for line in islice(f, 2, 3):    
+            latlong= line[17:40].strip()
+            latitude =float(latlong[:latlong.find(",")-1])
+            if latlong[len(latlong)-1:len(latlong)]=="W":
+                longitude =float("-"+latlong[latlong.find(",")+1: len(latlong)-1].strip())
+            else:
+                longitude =float(latlong[latlong.find(",")+1: len(latlong)-1].strip())
+            #print(latitude, longitude)
+        for line in islice(f, 17, 18):
+            nameCh1=line[26:].strip()
+        for line in islice(f, 0, 1):
+            nameCh1=nameCh1 + line.strip()
+            #print(nameCh1)
 
-    for line in islice(f, 20, 21):
-        #print(line)
-        numofPointsAccel1 = int(line[0: line.find("points")].strip())
-        dtAccel1 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-        unitsAccel1 = line[line.find(", in") + 4: line.find(". (")].strip()
-    numofLines = lines(numofPointsAccel1)
-    accel1 = readchunk(f,numofLines)
+        for line in islice(f, 20, 21):
+            #print(line)
+            numofPointsAccel1 = int(line[0: line.find("points")].strip())
+            dtAccel1 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+            unitsAccel1 = line[line.find(", in") + 4: line.find(". (")].strip()
+        numofLines = lines(numofPointsAccel1)
+        accel1 = readchunk(f,numofLines)
 
-    for line in islice(f, 0,1):
-        #print(line)
-        numofPointsVel1 = int(line[0: line.find("points")].strip())
-        dtVel1 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-        unitsVel1 = line[line.find(", in") + 4: line.find(".  (")].strip()
-    numofLines = lines(numofPointsVel1)
-    vel1 = readchunk(f,numofLines)
+        for line in islice(f, 0,1):
+            #print(line)
+            numofPointsVel1 = int(line[0: line.find("points")].strip())
+            dtVel1 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+            unitsVel1 = line[line.find(", in") + 4: line.find(".  (")].strip()
+        numofLines = lines(numofPointsVel1)
+        vel1 = readchunk(f,numofLines)
 
-    for line in islice(f, 0,1):
-        #print(line)
-        numofPointsDispl1 = int(line[0: line.find("points")].strip())
-        dtDispl1 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-        unitsDispl1 = line[line.find(", in") + 4: line.find(".   ")].strip()
-    numofLines = lines(numofPointsDispl1)
-    displ1 = readchunk(f,numofLines)
+        for line in islice(f, 0,1):
+            #print(line)
+            numofPointsDispl1 = int(line[0: line.find("points")].strip())
+            dtDispl1 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+            unitsDispl1 = line[line.find(", in") + 4: line.find(".   ")].strip()
+        numofLines = lines(numofPointsDispl1)
+        displ1 = readchunk(f,numofLines)
+
+        EOF=1
+        for line in islice(f,1,24):
+            if line != "":
+                EOF = 0
+
+        for line in islice(f, 0, 1):
+            nameCh2=line[26:].strip()
+        for line in islice(f, 0, 1):
+            nameCh2=nameCh2 + line.strip()
+            #print(nameCh2)
+
+        for line in islice(f,1,20):
+            i=0
+
+        if EOF ==0:
+            for line in islice(f, 0, 1):
+                #print(line)
+                numofPointsAccel2 = int(line[0: line.find("points")].strip())
+                dtAccel2 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+                unitsAccel2 = line[line.find(", in") + 4: line.find(". (")].strip()
+            numofLines = lines(numofPointsAccel2)
+            accel2 = readchunk(f,numofLines)
+
+            for line in islice(f, 0,1):
+                #print(line)
+                numofPointsVel2 = int(line[0: line.find("points")].strip())
+                dtVel2 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+                unitsVel2 = line[line.find(", in") + 4: line.find(".  (")].strip()
+            numofLines = lines(numofPointsVel2)
+            vel2 = readchunk(f,numofLines)
+
+            for line in islice(f, 0,1):
+                #print(line)
+                numofPointsDispl2 = int(line[0: line.find("points")].strip())
+                dtDispl2 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+                unitsDispl2 = line[line.find(", in") + 4: line.find(".   ")].strip()
+            numofLines = lines(numofPointsDispl2)
+            displ2 = readchunk(f,numofLines)  
+
+            for line in islice(f,1,24):
+                i=0
+            for line in islice(f, 0, 1):
+                nameCh3=line[26:].strip()
+            for line in islice(f, 0, 1):
+                nameCh3=nameCh3 + line.strip()
+                #print(nameCh3)
+            for line in islice(f,1,20):
+                i=0    
+
+            for line in islice(f, 0, 1):
+                #print(line)
+                numofPointsAccel3 = int(line[0: line.find("points")].strip())
+                dtAccel3 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+                unitsAccel3 = line[line.find(", in") + 4: line.find(". (")].strip()
+            numofLines = lines(numofPointsAccel3)
+            accel3 = readchunk(f,numofLines)
+
+            for line in islice(f, 0,1):
+                #print(line)
+                numofPointsVel3 = int(line[0: line.find("points")].strip())
+                dtVel3 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+                unitsVel3 = line[line.find(", in") + 4: line.find(".  (")].strip()
+            numofLines = lines(numofPointsVel3)
+            vel3 = readchunk(f,numofLines)
+
+            for line in islice(f, 0,1):
+                #print(line)
+                numofPointsDispl3 = int(line[0: line.find("points")].strip())
+                dtDispl3 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
+                unitsDispl3 = line[line.find(", in") + 4: line.find(".   ")].strip()
+            numofLines = lines(numofPointsDispl3)
+            displ3 = readchunk(f,numofLines)  
+        f.close()
+
 
     T1 = np.arange(0.0,numofPointsAccel1*dtAccel1, dtAccel1)
     scale = scaleValue(unitsAccel1) 
     scaledAccel1 = [value*scale for value in accel1]
-
-    EOF=1
-    for line in islice(f,1,24):
-        if line != "":
-            EOF = 0
-
-    for line in islice(f, 0, 1):
-        nameCh2=line[26:].strip()
-    for line in islice(f, 0, 1):
-        nameCh2=nameCh2 + line.strip()
-        #print(nameCh2)
-
-    for line in islice(f,1,20):
-        i=0
-
-    if EOF ==0:
-        for line in islice(f, 0, 1):
-            #print(line)
-            numofPointsAccel2 = int(line[0: line.find("points")].strip())
-            dtAccel2 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-            unitsAccel2 = line[line.find(", in") + 4: line.find(". (")].strip()
-        numofLines = lines(numofPointsAccel2)
-        accel2 = readchunk(f,numofLines)
-
-        for line in islice(f, 0,1):
-            #print(line)
-            numofPointsVel2 = int(line[0: line.find("points")].strip())
-            dtVel2 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-            unitsVel2 = line[line.find(", in") + 4: line.find(".  (")].strip()
-        numofLines = lines(numofPointsVel2)
-        vel2 = readchunk(f,numofLines)
-
-        for line in islice(f, 0,1):
-            #print(line)
-            numofPointsDispl2 = int(line[0: line.find("points")].strip())
-            dtDispl2 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-            unitsDispl2 = line[line.find(", in") + 4: line.find(".   ")].strip()
-        numofLines = lines(numofPointsDispl2)
-        displ2 = readchunk(f,numofLines)  
-
-        for line in islice(f,1,24):
-            i=0
-        for line in islice(f, 0, 1):
-            nameCh3=line[26:].strip()
-        for line in islice(f, 0, 1):
-            nameCh3=nameCh3 + line.strip()
-            #print(nameCh3)
-        for line in islice(f,1,20):
-            i=0    
-
-        for line in islice(f, 0, 1):
-            #print(line)
-            numofPointsAccel3 = int(line[0: line.find("points")].strip())
-            dtAccel3 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-            unitsAccel3 = line[line.find(", in") + 4: line.find(". (")].strip()
-        numofLines = lines(numofPointsAccel3)
-        accel3 = readchunk(f,numofLines)
-
-        for line in islice(f, 0,1):
-            #print(line)
-            numofPointsVel3 = int(line[0: line.find("points")].strip())
-            dtVel3 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-            unitsVel3 = line[line.find(", in") + 4: line.find(".  (")].strip()
-        numofLines = lines(numofPointsVel3)
-        vel3 = readchunk(f,numofLines)
-
-        for line in islice(f, 0,1):
-            #print(line)
-            numofPointsDispl3 = int(line[0: line.find("points")].strip())
-            dtDispl3 = float(line[line.find("at ") + 3: line.find(" sec")].strip())
-            unitsDispl3 = line[line.find(", in") + 4: line.find(".   ")].strip()
-        numofLines = lines(numofPointsDispl3)
-        displ3 = readchunk(f,numofLines)  
-
+    if EOF == 0:
         T2 = np.arange(0.0,numofPointsAccel2*dtAccel2, dtAccel2)
         T3 = np.arange(0.0,numofPointsAccel1*dtAccel3, dtAccel3)
         scale = scaleValue(unitsAccel2) 
@@ -1664,8 +1761,8 @@ rr=0
 if EOF==1:
     win.geometry("570x430")
 else:
-    win.geometry("570x900")
-win.title("Read CISMIP V2 Files")
+    win.geometry("570x1000")
+win.title("Read CISMIP v2/COSMOS V2c Files")
 
 scrollable_frame = ScrollableFrame(win)
 scrollable_frame.pack(fill="both", expand=True)
@@ -1760,7 +1857,6 @@ else:
 
     ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
 
-
     ttk.Checkbutton(canvas, text="Create Response Spectra?", variable=canvas.createRS2).grid(row=rr,column=0, sticky="w"); rr+=1
 
     RspSpecList=["Accel","Vel","Disp"]
@@ -1783,23 +1879,32 @@ else:
     canvas.list_TDRightType = OptionMenu(canvas,canvas.TDRightType,*TDRightList)
     canvas.list_TDRightType.grid(row=rr,column=1,sticky="ew"); rr+=1
 
-    ttk.Checkbutton(canvas, text="Include ASCE722 Spectra? (Only for Rotated Plots)", variable=canvas.includeASCE).grid(row=rr,column=0, sticky="w"); rr+=1
-    ttk.Checkbutton(canvas, text="Create Tripartite Response Spectra (only for Rotated Plots)?", variable=canvas.createTrip).grid(row=rr,column=0, sticky="w"); rr+=1
+    canvas.labelarate = Label(canvas, text="Animation rate = ", justify="right").grid(row=rr,column=0,sticky="e")
+    canvas.entry_arate  = Entry(canvas)
+    canvas.entry_arate.insert(0,str(3))
+    canvas.entry_arate.grid(row=rr,column=1,sticky="ew"); rr+=1
 
     ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
     pb.grid(row=rr,column=0,pady=3,columnspan = 2); rr+=1
+
     ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
+    button = ttk.Button(canvas, text="Plot with options selected", command=on_click).grid(row=rr,column=0,padx=7,pady = 7, columnspan = 2,sticky='nesw'); rr+=1
+    ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
+
+    ttk.Checkbutton(canvas, text="Include ASCE722 Spectra? (Only for Rotated Plots)", variable=canvas.includeASCE).grid(row=rr,column=0, sticky="w"); rr+=1
+    ttk.Checkbutton(canvas, text="Create Tripartite Response Spectra (only for Rotated Plots)?", variable=canvas.createTrip).grid(row=rr,column=0, sticky="w"); rr+=1
+ 
+
     canvas.Labelplot= Label(canvas, text= "Click the button to plot (Will take time to complete with any Spectra option enabled)").grid(row=rr,column=0, sticky="w",columnspan = 2); rr+=1
 
-    ttk.Button(canvas, text="Plot", command=on_click).grid(row=rr,column=0,padx=7,columnspan = 1)
-    ttk.Button(canvas, text="Plot Rotated Max Resp", command=on_clickRotDisp).grid(row=rr,column=1,padx=7,columnspan = 1); rr+=1
-    ttk.Button(canvas, text="Plot Rotated Max Velocity", command=on_clickRotVel).grid(row=rr,column=0,padx=7,columnspan = 1)
-    ttk.Button(canvas, text="Plot Rotated Max Accel", command=on_clickRot).grid(row=rr,column=1,padx=7,columnspan = 1); rr+=1
+    ttk.Button(canvas, text="Plot Rotated Max Accel", command=on_clickRot).grid(row=rr,column=0,padx=7,columnspan = 1); rr+=1
     canvas.LabelAngle = Label(canvas, text="Rotate by Angle = ", justify="right").grid(row=rr,column=0,sticky="e")
     canvas.entry_Angle  = Entry(canvas); 
     canvas.entry_Angle.insert(0,str("45"))
     canvas.entry_Angle.grid(row=rr,column=1,pady =7, sticky="ew"); rr+=1
     ttk.Button(canvas, text="Plot Rotated Angle", command=on_clickRotAngle).grid(row=rr,column=1,padx=7,columnspan = 1); rr+=1
+    ttk.Button(canvas, text="Plot Rotated Max Resp", command=on_clickRotDisp).grid(row=rr,column=0,padx=7,columnspan = 1)
+    ttk.Button(canvas, text="Plot Rotated Max Velocity", command=on_clickRotVel).grid(row=rr,column=1,padx=7,columnspan = 1); rr+=1
     ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
     ttk.Checkbutton(canvas, text="Plot Azimuth angle vs Spectra, 3D plot?", variable=canvas.createAz3D).grid(row=rr,column=0, sticky="w"); rr+=1
     ttk.Button(canvas, text="Plot RotD50 Spectra", command=on_clickRotD50).grid(row=rr,column=0,pady=3,columnspan = 2); rr+=1
@@ -1807,7 +1912,6 @@ else:
 
 
 
-ttk.Separator(canvas, orient='horizontal').grid(row=rr, column=0, columnspan=2, pady =10, sticky="ew"); rr+=1
 
 canvas.Labelsave= Label(canvas, text= "Write data files (space separated time-acceleration values)").grid(row=rr,column=0); rr+=1
 if EOF==1:
