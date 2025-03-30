@@ -1588,31 +1588,31 @@ def readFile():
         EOF = 0
         for index,vfl in enumerate(f_name):
             print("Reading V2c files")
-            if "HNE.--.acc" in vfl:
+            if "HNE.--.acc" in vfl or ("HN1" in vfl and "acc" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh1,dtAccel1,numofPointsAccel1,accel1 = readFileV2c(f,f_name[index])
-            if "HNN.--.acc" in vfl:
+            if "HNN.--.acc" in vfl or ("HN2" in vfl and "acc" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh2,dtAccel2,numofPointsAccel2,accel2 = readFileV2c(f,f_name[index])
-            if "HNZ.--.acc" in vfl:
+            if "HNZ.--.acc" in vfl or ("HNZ" in vfl and "acc" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh3,dtAccel3,numofPointsAccel3,accel3 = readFileV2c(f,f_name[index])
-            if "HNE.--.vel" in vfl:
+            if "HNE.--.vel" in vfl or ("HN1" in vfl and "vel" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh1,dtVel1,numofPointsVel1,vel1 = readFileV2c(f,f_name[index])
-            if "HNN.--.vel" in vfl:
+            if "HNN.--.vel" in vfl or ("HN2" in vfl and "vel" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh2,dtVel2,numofPointsVel2,vel2 = readFileV2c(f,f_name[index])
-            if "HNZ.--.vel" in vfl:
+            if "HNZ.--.vel" in vfl or ("HNZ" in vfl and "vel" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh3,dtVel3,numofPointsVel3,vel3 = readFileV2c(f,f_name[index])
-            if "HNE.--.dis" in vfl:
+            if "HNE.--.dis" in vfl or ("HN1" in vfl and "dis" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh1,dtDispl1,numofPointsDispl1,displ1 = readFileV2c(f,f_name[index])
-            if "HNN.--.dis" in vfl:
+            if "HNN.--.dis" in vfl or ("HN2" in vfl and "dis" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh2,dtDispl2,numofPointsDispl2,displ2 = readFileV2c(f,f_name[index])
-            if "HNZ.--.dis" in vfl:
+            if "HNZ.--.dis" in vfl or ("HNZ" in vfl and "dis" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh3,dtDispl3,numofPointsDispl2,displ3 = readFileV2c(f,f_name[index])
         print("Completed reading V2c files")
