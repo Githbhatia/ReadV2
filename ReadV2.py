@@ -1540,7 +1540,7 @@ def readFile():
 
     if len(filenames)==0:
         messagebox.showinfo('Error', 'File not selected, exiting')
-        exit()
+        sys.exit()
 
     V2c = V2 = False
     f= None
@@ -1561,7 +1561,7 @@ def readFile():
                     break
             if len(f_all) == 0 and f == None:
                 messagebox.showinfo('Error', 'Zip file does not contain freefield .v2 or .V2c file')
-                exit()
+                sys.exit()
         else:
             archive2 = zipfile.ZipFile(filenames2, 'r')
             flist2 = archive2.namelist()
@@ -1576,13 +1576,13 @@ def readFile():
                     break
             if len(f_all) == 0 and f == None:
                 messagebox.showinfo('Error', 'Zip file does not contain freefield .v2 or .V2c file')
-                exit()
+                sys.exit()
     elif filenames[0][-3:]==".v2" or filenames[0][-3:]==".V2":
         f=open(filenames[0])
         V2 = True
     else:
         messagebox.showinfo('Error', 'V2 File not selected, exiting')
-        exit()
+        sys.exit()
 
     if V2c:
         EOF = 0
