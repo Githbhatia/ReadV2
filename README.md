@@ -42,3 +42,6 @@ Changes 12/23/2024
 
 Changes 12/29/2024
 *Added option to read COSMOS V2c files.  Other improvements to speed up animation and spectra calculations (now uses only selected portion of the record).
+
+Changes 3/29/2025
+*Added revised file name schema used by USGS for v2C files for some internation stations.
