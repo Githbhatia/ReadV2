@@ -302,7 +302,8 @@ def on_click():
             #canvas.Labelplot["text"]="This may take some time"
             subplotCounter+=1
             ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-            Sfin= RS_function(accel1[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'PSASD')
+            tT1 = np.logspace(-2,1,num=200) # Time vector for the spectral response
+            Sfin= RS_function(accel1[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT1, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel1)
             area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
@@ -322,7 +323,7 @@ def on_click():
 
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-            Sfin= RS_function(accel2[int(float(canvas.entry_Lowxlim.get())/dtAccel2):int(float(canvas.entry_Highxlim.get())/dtAccel2)], df, tT, xi, Resp_type = 'PSASD')
+            Sfin= RS_function(accel2[int(float(canvas.entry_Lowxlim.get())/dtAccel2):int(float(canvas.entry_Highxlim.get())/dtAccel2)], df, tT1, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel2)
             area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
@@ -342,7 +343,7 @@ def on_click():
             
             subplotCounter+=1
             ax=plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-            Sfin= RS_function(accel3[int(float(canvas.entry_Lowxlim.get())/dtAccel3):int(float(canvas.entry_Highxlim.get())/dtAccel3)], df, tT, xi, Resp_type = 'PSASD')
+            Sfin= RS_function(accel3[int(float(canvas.entry_Lowxlim.get())/dtAccel3):int(float(canvas.entry_Highxlim.get())/dtAccel3)], df, tT1, xi, Resp_type = 'PSASD')
             S=Sfin[0,:]*scaleValue(unitsAccel3)
             area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
             #print(area)
@@ -795,7 +796,8 @@ def rotatedplots(plt, ax, T1, resAccelmax, noSubplotsRows,noSubplotsCols, subplo
         win.update_idletasks()
         subplotCounter+=1
         ax =plt.subplot(noSubplotsRows,noSubplotsCols,subplotCounter)
-        Sfin= RS_function(resAccelmax[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT, xi, Resp_type = 'PSASD')
+        tT1 = np.logspace(-2,1,num=200) # Time vector for the spectral response
+        Sfin= RS_function(resAccelmax[int(float(canvas.entry_Lowxlim.get())/dtAccel1):int(float(canvas.entry_Highxlim.get())/dtAccel1)], df, tT1, xi, Resp_type = 'PSASD')
         S=Sfin[0,:]*scaleValue(unitsAccel1)
         area= round(np.trapezoid(Sfin[0,:],Sfin[1,:])/10000,2)
         #print(area)
@@ -1329,7 +1331,7 @@ def saveFile():
                 j+= 1
 
 def radialPeriods(scale, plt, ax):
-    periodSeries = np.concatenate(( np.arange(0.1,1.0,0.1) , np.arange(1.0,2.0,0.5), np.arange(2.0,5.0,1) ))
+    periodSeries = np.concatenate(( np.arange(0.1,1.0,0.1) , np.arange(1.0,2.0,0.5), np.arange(2.0,float(canvas.entry_endPeriod.get())+1,1) ))
     #print(periodSeries)
 
     dispLimit, AccelLimit = ax.transData.inverted().transform(ax.transAxes.transform((0.95,0.95)))
@@ -1588,31 +1590,31 @@ def readFile():
         EOF = 0
         for index,vfl in enumerate(f_name):
             print("Reading V2c files")
-            if "HNE.--.acc" in vfl or ("HN1" in vfl and "acc" in vfl):
+            if ("HNE" in vfl and "acc" in vfl) or ("HN1" in vfl and "acc" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh1,dtAccel1,numofPointsAccel1,accel1 = readFileV2c(f,f_name[index])
-            if "HNN.--.acc" in vfl or ("HN2" in vfl and "acc" in vfl):
+            elif ("HNN" in vfl and "acc" in vfl) or ("HN2" in vfl and "acc" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh2,dtAccel2,numofPointsAccel2,accel2 = readFileV2c(f,f_name[index])
-            if "HNZ.--.acc" in vfl or ("HNZ" in vfl and "acc" in vfl):
+            elif ("HNZ" in vfl and "acc" in vfl) or ("HNZ" in vfl and "acc" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh3,dtAccel3,numofPointsAccel3,accel3 = readFileV2c(f,f_name[index])
-            if "HNE.--.vel" in vfl or ("HN1" in vfl and "vel" in vfl):
+            elif ("HNE" in vfl and "vel" in vfl) or ("HN1" in vfl and "vel" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh1,dtVel1,numofPointsVel1,vel1 = readFileV2c(f,f_name[index])
-            if "HNN.--.vel" in vfl or ("HN2" in vfl and "vel" in vfl):
+            elif ("HNN" in vfl and "vel" in vfl) or ("HN2" in vfl and "vel" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh2,dtVel2,numofPointsVel2,vel2 = readFileV2c(f,f_name[index])
-            if "HNZ.--.vel" in vfl or ("HNZ" in vfl and "vel" in vfl):
+            elif ("HNZ" in vfl and "vel" in vfl) or ("HNZ" in vfl and "vel" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh3,dtVel3,numofPointsVel3,vel3 = readFileV2c(f,f_name[index])
-            if "HNE.--.dis" in vfl or ("HN1" in vfl and "dis" in vfl):
+            elif ("HNE" in vfl and "dis" in vfl) or ("HN1" in vfl and "dis" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh1,dtDispl1,numofPointsDispl1,displ1 = readFileV2c(f,f_name[index])
-            if "HNN.--.dis" in vfl or ("HN2" in vfl and "dis" in vfl):
+            elif ("HNN" in vfl and "dis" in vfl) or ("HN2" in vfl and "dis" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh2,dtDispl2,numofPointsDispl2,displ2 = readFileV2c(f,f_name[index])
-            if "HNZ.--.dis" in vfl or ("HNZ" in vfl and "dis" in vfl):
+            elif ("HNZ" in vfl and "dis" in vfl) or ("HNZ" in vfl and "dis" in vfl):
                 f = f_all[index]
                 recTime,latitude,longitude,nameCh3,dtDispl3,numofPointsDispl2,displ3 = readFileV2c(f,f_name[index])
         print("Completed reading V2c files")
